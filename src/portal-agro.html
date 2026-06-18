@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampoVivo — Portal Agro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<script>
+  // Executa imediatamente para evitar o "flash" branco no carregamento
+  if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+</script>
+
+<!-- SKIP LINK (acessibilidade) -->
+<a href="#conteudo-principal" class="skip-link">Ir para o conteúdo</a>
+
+<!-- TOPBAR -->
+<div class="topbar" role="banner">
+  <div class="container topbar-inner">
+    <div class="topbar-left">
+      <span>Cobrindo todo o Brasil Agro</span>
+      <span class="topbar-sep" aria-hidden="true">·</span>
+      <time id="topbar-data" datetime=""></time>
+    </div>
+    <div class="topbar-right">
+      <span>Safra 2025/26 em andamento</span>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header id="site-header">
+  <div class="container header-inner">
+    <div class="logo">
+      <div class="logo-icon" aria-hidden="true">
+        <!-- SVG Leaf -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2C6 2 3 8 3 12c0 5 4 9 9 9s9-4 9-9C21 5 17 2 12 2z"/>
+          <path d="M12 2c0 0-3 7 0 12s6 7 6 7"/>
+          <line x1="12" y1="22" x2="12" y2="12"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">CampoVivo</div>
+        <div class="logo-sub">Portal Agronegócio</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-toggle-theme" id="toggleDarkMode" aria-label="Alternar tema">🌙</button>
+      <button class="btn-busca" id="abrirBusca" aria-label="Abrir busca" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+      <button class="btn-adicionar-noticia" id="abrirAdicionarNoticia" aria-label="Gerar notícia com IA" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- SUB-NAV / CATEGORIAS -->
+<div class="nav-bar">
+  <div class="container">
+    <nav aria-label="Menu Principal">
+      <a href="#" class="ativo" aria-current="page">Início</a>
+      <a href="#">Grãos</a>
+      <a href="#">Pecuária</a>
+      <a href="#">Tecnologia</a>
+      <a href="#">Clima</a>
+      <a href="#">Mercados</a>
+    </nav>
+  </div>
+</div>
+
+<main id="conteudo-principal">
+  <div class="container">
+
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+      <article class="hero-principal noticia-clicavel"
+               data-titulo="Preços da soja disparam no mercado internacional com quebra de safra nos EUA"
+               data-categoria="Grãos"
+               data-cor="var(--verde)"
+               data-texto="O mercado global de commodities reagiu com forte alta após o relatório do USDA confirmar perdas significativas nas lavouras americanas devido ao clima extremo. No Brasil, produtores já reavaliam suas estratégias de comercialização para aproveitar o prêmio de exportação elevado nos portos. Especialistas indicam que a saca pode atingir novos patamares históricos nas próximas semanas, impulsionada pela demanda chinesa aquecida.">
+        <div class="hero-img-box">
+          <!-- Decorative SVG wheat -->
+          <svg class="hero-deco" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+            <path d="M100 180 Q100 100 100 20" stroke="white" stroke-width="3"/>
+            <path d="M100 140 Q80 120 60 130" stroke="white" stroke-width="2.5"/>
+            <path d="M100 120 Q120 100 140 110" stroke="white" stroke-width="2.5"/>
+            <path d="M100 100 Q78 80 58 90" stroke="white" stroke-width="2.5"/>
+            <path d="M100 80 Q122 60 142 70" stroke="white" stroke-width="2.5"/>
+            <ellipse cx="60" cy="130" rx="14" ry="8" fill="white" transform="rotate(-30 60 130)"/>
+            <ellipse cx="140" cy="110" rx="14" ry="8" fill="white" transform="rotate(30 140 110)"/>
+            <ellipse cx="58" cy="90" rx="14" ry="8" fill="white" transform="rotate(-30 58 90)"/>
+            <ellipse cx="142" cy="70" rx="14" ry="8" fill="white" transform="rotate(30 142 70)"/>
+          </svg>
+          <div class="hero-content-overlay">
+            <span class="hero-tag">Destaque</span>
+            <h2 id="hero-title">Preços da soja disparam no mercado internacional com quebra de safra nos EUA</h2>
+          </div>
+        </div>
+        <div class="hero-principal-body">
+          <p>Relatório do USDA confirma perdas severas nas lavouras americanas, impulsionando os preços em Chicago e elevando os prêmios nos portos brasileiros para níveis recordes.</p>
+          <div class="hero-meta">
+            <span class="autor">Redação CampoVivo</span>
+            <span aria-hidden="true">•</span>
+            <time>Hoje, 10:45</time>
+            <span aria-hidden="true">•</span>
+            <span>5 min de leitura</span>
+          </div>
+        </div>
+      </article>
+
+      <aside class="hero-sidebar" aria-label="Widgets laterais">
+        <!-- Notícia Secundária 1 -->
+        <article class="hero-card noticia-clicavel" 
+                 data-titulo="Exportações de carne batem recorde no primeiro semestre" 
+                 data-categoria="Pecuária" 
+                 data-cor="var(--terra)" 
+                 data-texto="O setor pecuário brasileiro celebra números históricos...">
+          <span class="hero-card-tag" style="color:var(--terra)">Pecuária</span>
+          <h3>Exportações de carne batem recorde no primeiro semestre</h3>
+        </article>
+
+        <!-- Notícia Secundária 2 -->
+        <article class="hero-card noticia-clicavel"
+                 data-titulo="Nova tecnologia de irrigação reduz consumo de água em 30%"
+                 data-categoria="Tecnologia"
+                 data-cor="#185FA5"
+                 data-texto="Drones e sensores de umidade integrados estão mudando a gestão hídrica...">
+          <span class="hero-card-tag" style="color:#185FA5">Tecnologia</span>
+          <h3>Nova tecnologia de irrigação reduz consumo de água em 30%</h3>
+        </article>
+      </aside>
+    </section>
+
+    <!-- TABS DE CATEGORIAS -->
+        <!-- WIDGET CLIMA -->
+        <div class="widget" role="region" aria-label="Clima no Campo">
+          <div class="widget-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 0 1 0 9z"/>
+            </svg>
+            Clima no Campo
+          </div>
+          <div class="widget-body">
+            <div class="clima-local">
+              <div class="clima-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="4" fill="#f5a623" stroke="#f5a623"/>
+                  <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#f5a623" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M6 15a6 6 0 0 1 12 0H6z" fill="#9bc4e2" opacity=".7"/>
+                </svg>
+              </div>
+              <div>
+                <div class="clima-temp">28°C</div>
+                <div class="clima-desc">Parcialmente nublado</div>
+                <div class="clima-cidade">Sorriso, MT — Coração da Soja</div>
+              </div>
+            </div>
+            <div class="clima-detalhes">
+              <div class="clima-detalhe">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a6 6 0 0 1 0 12 6 6 0 0 1 0-12zm0 12v8"/><path d="M8 18h8"/></svg>
+                Umidade: 65%
+              </div>
+              <div class="clima-detalhe">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+                Vento: 14 km/h
+              </div>
+              <div class="clima-detalhe">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><polyline points="8 16 12 20 16 16"/><line x1="12" y1="12" x2="12" y2="20"/></svg>
+                Chuva: 0 mm
+              </div>
+              <div class="clima-detalhe">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                UV: Alto (8)
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- TABS DE CATEGORIAS -->
+    <div class="categorias-tabs secao-sm" role="tablist" aria-label="Filtrar por categoria">
+      <button class="tab ativo" role="tab" aria-selected="true">Tudo</button>
+      <button class="tab" role="tab" aria-selected="false">Grãos</button>
+      <button class="tab" role="tab" aria-selected="false">Pecuária</button>
+      <button class="tab" role="tab" aria-selected="false">Tecnologia</button>
+      <button class="tab" role="tab" aria-selected="false">Clima</button>
+      <button class="tab" role="tab" aria-selected="false">Mercado</button>
+      <button class="tab" role="tab" aria-selected="false">Política Agrícola</button>
+    </div>
+
+    <!-- ÚLTIMAS NOTÍCIAS -->
+    <section class="secao" aria-labelledby="noticias-title">
+      <div class="section-header">
+        <h2 class="section-title" id="noticias-title">Últimas Notícias</h2>
+        <a href="#" class="ver-mais">Ver todas
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+      <div class="noticias-grid" id="noticiasGrid">
+        <article class="noticia-card noticia-clicavel" 
+                 data-post-id="101"
+                 data-titulo="Plano Safra 2025/26: Governo anuncia R$ 400 bilhões em crédito rural"
+                 data-categoria="Política Agrícola"
+                 data-cor="#993556"
+                 data-texto="O novo Plano Safra traz volume recorde de recursos para o médio e grande produtor, com foco em agricultura de baixo carbono e sustentabilidade.">
+          <div class="noticia-thumb" style="background:linear-gradient(135deg,#FBEAF0,#F4C0D1)" aria-hidden="true">🏛</div>
+          <div class="noticia-body">
+            <span class="noticia-cat" style="color:#993556">Política Agrícola</span>
+            <h3>Plano Safra 2025/26: Governo anuncia R$ 400 bilhões</h3>
+            <p>Novo plano foca em juros reduzidos para práticas sustentáveis e recuperação de pastagens degradadas…</p>
+            <div class="hero-meta"><time>Hoje, 09:15</time></div>
+          </div>
+        </article>
+
+        <article class="noticia-card noticia-clicavel"
+                 data-post-id="102"
+                 data-titulo="Colheitadeiras autônomas começam a operar em escala comercial em Goiás"
+                 data-categoria="Tecnologia"
+                 data-cor="#185FA5"
+                 data-texto="Máquinas sem cabine utilizam IA e conectividade 5G para otimizar a colheita, reduzindo desperdícios e custos operacionais significativamente nas grandes propriedades do Centro-Oeste.">
+          <div class="noticia-thumb" style="background:linear-gradient(135deg,#E6F1FB,#B5D4F4)" aria-hidden="true">🤖</div>
+          <div class="noticia-body">
+            <span class="noticia-cat" style="color:#185FA5">Tecnologia</span>
+            <h3>Colheitadeiras autônomas começam a operar em Goiás</h3>
+            <p>Utilizando IA e 5G, nova geração de máquinas promete revolucionar a produtividade no campo…</p>
+            <div class="hero-meta"><time>Ontem, 16:40</time></div>
+          </div>
+        </article>
+
+        <article class="noticia-card noticia-clicavel"
+                 data-post-id="103"
+                 data-titulo="Clima: La Niña deve trazer chuvas acima da média para o Sul em 2026"
+                 data-categoria="Clima"
+                 data-cor="#533AB7"
+                 data-texto="Modelos meteorológicos indicam o retorno do fenômeno La Niña, o que deve impactar o regime de chuvas nas principais regiões produtoras do país, especialmente no Rio Grande do Sul e Paraná.">
+          <div class="noticia-thumb" style="background:linear-gradient(135deg,#EEEDFE,#CECBF6)" aria-hidden="true">🌦</div>
+          <div class="noticia-body">
+            <span class="noticia-cat" style="color:#533AB7">Clima</span>
+            <h3>La Niña deve trazer chuvas acima da média para o Sul</h3>
+            <p>Fenômeno meteorológico deve se intensificar no próximo semestre, exigindo atenção dos produtores…</p>
+            <div class="hero-meta"><time>Ontem, 14:20</time></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- SEÇÃO MULTIMÍDIA (VÍDEOS E FOTOS) -->
+    <section class="secao multimidia" aria-labelledby="multimidia-title">
+      <div class="section-header">
+        <h2 class="section-title" id="multimidia-title">TV CampoVivo & Galeria</h2>
+        <a href="#" class="ver-mais">Acessar canal
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+      <div class="multimidia-container">
+        <div class="multimidia-main">
+          <div class="multimidia-video-placeholder">
+            <img src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=1200&q=80" alt="Capa do Vídeo">
+            <div class="play-button" aria-label="Play">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="multimidia-main-info">
+              <span class="multimidia-tag">Especial</span>
+              <h3>Como a biotecnologia está dobrando a produtividade no Cerrado</h3>
+            </div>
+          </div>
+        </div>
+        <div class="multimidia-list">
+          <div class="multimidia-item" 
+               data-img="https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=1200&q=80" 
+               data-titulo="Manejo de pragas: as novas soluções biológicas" 
+               data-tipo="video">
+            <div class="multimidia-thumb">
+              <img src="https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=400&q=80" alt="Manejo de pragas">
+              <span class="video-duration">04:15</span>
+            </div>
+            <div class="multimidia-info">
+              <h4>Manejo de pragas: as novas soluções biológicas</h4>
+            </div>
+          </div>
+          <div class="multimidia-item" 
+               data-img="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1200&q=80" 
+               data-titulo="Cotação do boi gordo: o que esperar da entressafra?" 
+               data-tipo="video">
+            <div class="multimidia-thumb">
+              <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=400&q=80" alt="Cotação do boi">
+              <span class="video-duration">03:20</span>
+            </div>
+            <div class="multimidia-info">
+              <h4>Cotação do boi gordo: o que esperar da entressafra?</h4>
+            </div>
+          </div>
+          <div class="multimidia-item" 
+               data-img="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80" 
+               data-titulo="Galeria: A beleza das colheitas de café em Minas" 
+               data-tipo="galeria">
+            <div class="multimidia-thumb">
+              <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80" alt="Galeria Café">
+              <span class="photo-count">12 fotos</span>
+            </div>
+            <div class="multimidia-info">
+              <h4>Galeria: A beleza das colheitas de café em Minas</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BANNER CTA -->
+    <div class="banner-agro secao-sm">
+      <div class="banner-inner">
+        <div class="banner-texto">
+          <h2>Inteligência de mercado que você não encontra em outro lugar</h2>
+          <p>Acesse análises exclusivas, relatórios diários e cotações com 15 minutos de antecedência. Teste grátis por 7 dias.</p>
+        </div>
+        <button class="btn-banner">Começar agora
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="16" height="16" style="vertical-align:middle;margin-left:6px" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL + SIDEBAR -->
+    <div class="layout-sidebar secao">
+
+      <div class="coluna-principal">
+
+        <!-- ANÁLISE DE MERCADO -->
+        <section aria-labelledby="analise-title">
+          <div class="section-header">
+            <h2 class="section-title" id="analise-title">Análise de Mercado</h2>
+            <a href="#" class="ver-mais">Ver todas
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+          <div class="analise-grid">
+            <article class="analise-card noticia-clicavel" data-titulo="Projeções para a Safra 2025" data-categoria="Mercado" data-cor="var(--terra-escuro)" data-texto="Analistas preveem um cenário de estabilidade para os preços das commodities...">
+              <div class="analise-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
+              </div>
+              <div class="analise-body">
+                <span class="noticia-cat" style="color:var(--terra-escuro)">Mercado</span>
+                <h3>Projeções para a Safra 2025: O que esperar do câmbio?</h3>
+                <p>Por Dr. Arnaldo Silva — Economista Chefe</p>
+              </div>
+            </article>
+
+            <article class="analise-card noticia-clicavel" data-titulo="Logística e Infraestrutura" data-categoria="Logística" data-cor="var(--verde-medio)" data-texto="A malha ferroviária brasileira tem avançado em pontos estratégicos...">
+              <div class="analise-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="1" y="3" width="15" height="13"/><polyline points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              </div>
+              <div class="analise-body">
+                <span class="noticia-cat" style="color:var(--verde-medio)">Logística</span>
+                <h3>Escoamento da Safra: Os novos gargalos do Arco Norte</h3>
+                <p>Por Eng. Ricardo Porto — Consultor de Logística</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- EM ALTA AGORA -->
+        <section class="secao" aria-labelledby="mais-noticias-title">
+          <div class="section-header">
+            <h2 class="section-title" id="mais-noticias-title">Em Alta Agora</h2>
+          </div>
+          <div class="lista-noticias" id="listaNoticias"></div>
+        </section>
+      </div>
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar" aria-label="Informações complementares">
+
+        <!-- WIDGET CLIMA (Movido do Hero para a Sidebar) -->
+        <div class="widget" role="region" aria-label="Clima no Campo">
+          <div class="widget-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 0 1 0 9z"/>
+            </svg>
+            Clima no Campo
+          </div>
+          <div class="widget-body">
+            <div class="clima-local">
+              <div class="clima-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="4" fill="#f5a623" stroke="#f5a623"/>
+                  <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#f5a623" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div>
+                <div class="clima-temp">28°C</div>
+                <div class="clima-cidade">Sorriso, MT</div>
+              </div>
+            </div>
+            <div class="clima-detalhes">
+              <div class="clima-detalhe">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a6 6 0 0 1 0 12 6 6 0 0 1 0-12zm0 12v8"/></svg>
+                Umidade: 65%
+              </div>
+              <div class="clima-detalhe">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/></svg>
+                Chuva: 0 mm
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIS LIDAS -->
+        <div class="widget" role="region" aria-label="Mais lidas">
+          <div class="widget-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+            </svg>
+            Mais Lidas
+          </div>
+          <div class="widget-body">
+            <ol class="mais-lidas-lista">
+              <li class="mais-lida-item noticia-clicavel" 
+                  data-titulo="Novo fertilizante orgânico promete reduzir custos em 20%" 
+                  data-categoria="Tecnologia" 
+                  data-cor="#185FA5" 
+                  data-texto="Pesquisadores brasileiros desenvolvem biofertilizante à base de resíduos da agroindústria com alta eficiência nutricional.">
+                <span class="mais-lida-num">01</span>
+                <div class="mais-lida-content">
+                  <div class="mais-lida-titulo">Novo fertilizante orgânico promete reduzir custos em 20%</div>
+                  <div class="mais-lida-meta">Tecnologia • há 2h</div>
+                </div>
+              </li>
+              <li class="mais-lida-item noticia-clicavel"
+                  data-titulo="Crise nos portos: Filas de navios para embarque de milho chegam a 20 dias"
+                  data-categoria="Mercado"
+                  data-cor="var(--terra-escuro)"
+                  data-texto="Problemas logísticos e excesso de chuvas em Santos atrasam exportação da safrinha brasileira.">
+                <span class="mais-lida-num">02</span>
+                <div class="mais-lida-content">
+                  <div class="mais-lida-titulo">Crise nos portos: Filas para embarque de milho aumentam</div>
+                  <div class="mais-lida-meta">Mercado • há 4h</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- COTAÇÕES -->
+        <div class="widget" role="region" aria-label="Cotações do mercado hoje">
+          <div class="widget-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>
+            </svg>
+            Mercado Hoje
+          </div>
+          <div class="widget-body">
+            <table class="cot-table" aria-label="Tabela de cotações agropecuárias">
+              <thead class="sr-only">
+                <tr><th>Produto</th><th>Preço</th><th>Variação</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="produto">Soja (sc 60kg)</td><td class="preco">R$ 138,50</td><td class="variacao alta" aria-label="Alta 0,8 por cento">▲ 0,8%</td></tr>
+                <tr><td class="produto">Milho (sc 60kg)</td><td class="preco">R$ 62,30</td><td class="variacao baixa" aria-label="Baixa 0,3 por cento">▼ 0,3%</td></tr>
+                <tr><td class="produto">Boi Gordo (@)</td><td class="preco">R$ 314,00</td><td class="variacao alta" aria-label="Alta 1,2 por cento">▲ 1,2%</td></tr>
+                <tr><td class="produto">Frango (@)</td><td class="preco">R$ 7,80</td><td class="variacao alta" aria-label="Alta 0,1 por cento">▲ 0,1%</td></tr>
+                <tr><td class="produto">Algodão (@ pluma)</td><td class="preco">R$ 97,10</td><td class="variacao alta" aria-label="Alta 0,5 por cento">▲ 0,5%</td></tr>
+                <tr><td class="produto">Café Arábica (sc)</td><td class="preco">R$ 1.420,00</td><td class="variacao baixa" aria-label="Baixa 0,6 por cento">▼ 0,6%</td></tr>
+              </tbody>
+            </table>
+            <a href="#" class="ver-mais" style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:var(--sp-4);font-size:13px;">Ver cotações completas
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="13" height="13" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+  </div>
+</main>
+
+<!-- SEÇÃO DE NEWSLETTER (Antes do Footer) -->
+<section class="newsletter-section">
+  <div class="container">
+    <div class="newsletter-box">
+      <div class="newsletter-content">
+        <h3>Receba o Radar CampoVivo</h3>
+        <p>As principais notícias do agronegócio e as cotações do dia direto no seu e-mail, todas as manhãs.</p>
+        <div class="newsletter-social">
+          <span class="social-label">Siga-nos:</span>
+          <div class="social-icons">
+            <a href="#" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a href="#" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+            </a>
+            <a href="#" aria-label="Twitter / X">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="#" aria-label="YouTube">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.97C5.12 20 12 20 12 20s6.88 0 8.59-.45a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <form class="newsletter-form">
+        <input type="email" placeholder="Seu melhor e-mail" required aria-label="Endereço de e-mail">
+        <button type="submit" class="btn-submit">Assinar Grátis</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="logo-text" style="color:#c0dd97;margin-bottom:var(--sp-3);font-size:20px;">CampoVivo</div>
+        <p style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.65;max-width:220px;">O maior portal de inteligência e notícias do agronegócio brasileiro.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Editorias</h4>
+        <a href="#">Grãos</a>
+        <a href="#">Pecuária</a>
+        <a href="#">Mercado</a>
+        <a href="#">Clima</a>
+        <a href="#">Tecnologia</a>
+      </div>
+      <div class="footer-col">
+        <h4>Serviços</h4>
+        <a href="#">Cotações</a>
+        <a href="#">Previsão do Tempo</a>
+        <a href="#">Crédito Rural</a>
+        <a href="#">Anúncios</a>
+      </div>
+      <div class="footer-col">
+        <h4>CampoVivo</h4>
+        <a href="#">Sobre nós</a>
+        <a href="#">Contato</a>
+        <a href="#">Privacidade</a>
+        <a href="#">Termos de Uso</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 CampoVivo Agro. Todos os direitos reservados.</span>
+      <div class="footer-social-links">
+        <a href="#" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+        </a>
+        <a href="#" aria-label="Twitter / X">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="#" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.97C5.12 20 12 20 12 20s6.88 0 8.59-.45a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#27500A"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- BUSCA OVERLAY -->
+<div class="busca-overlay" id="buscaOverlay" role="dialog" aria-modal="true" aria-labelledby="titulo-busca">
+  <div class="busca-box">
+    <button class="btn-fechar-busca" id="fecharBusca" aria-label="Fechar busca">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <h2 id="titulo-busca" class="sr-only">Pesquisar no portal</h2>
+    <div class="busca-input-wrapper">
+      <label for="busca-input-field" class="sr-only">Campo de busca</label>
+      <input type="search" id="busca-input-field" class="busca-input" placeholder="O que você procura no campo?" autocomplete="off">
+      <button class="btn-submit" style="width:auto;padding:0 var(--sp-6);">Buscar</button>
+    </div>
+    <div class="busca-sugestoes">
+      <p>Temas populares:</p>
+      <button class="busca-tag">Soja Mato Grosso</button>
+      <button class="busca-tag">Preço do boi gordo</button>
+      <button class="busca-tag">Safra milho</button>
+      <button class="busca-tag">Crédito rural</button>
+      <button class="busca-tag">Drone agrícola</button>
+      <button class="busca-tag">El Niño 2025</button>
+      <button class="busca-tag">Plano Safra</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ADICIONAR NOTÍCIA -->
+<div class="modal-adicionar-noticia" id="modalAdicionarNoticia" role="dialog" aria-modal="true" aria-labelledby="modalAdicionarTitulo">
+  <div class="modal-content">
+    <button class="btn-fechar-modal" id="fecharAdicionarNoticia" aria-label="Fechar formulário">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <h2 id="modalAdicionarTitulo">Adicionar Nova Notícia</h2>
+    <form id="formAdicionarNoticia" novalidate>
+      <div class="form-group">
+        <label for="noticiaTitulo">Título</label>
+        <input type="text" id="noticiaTitulo" required autocomplete="off" placeholder="Título da notícia">
+      </div>
+      <div class="form-group">
+        <label for="noticiaCategoria">Categoria</label>
+        <input type="text" id="noticiaCategoria" required autocomplete="off" placeholder="ex: Grãos, Pecuária...">
+      </div>
+      <div class="form-group">
+        <label for="noticiaCor">Cor da Categoria</label>
+        <input type="color" id="noticiaCor" value="#27500a">
+      </div>
+      <div class="form-group">
+        <label for="noticiaTexto">Conteúdo da Notícia</label>
+        <textarea id="noticiaTexto" rows="8" required placeholder="Escreva o conteúdo completo aqui..."></textarea>
+      </div>
+      <button type="submit" class="btn-submit">Adicionar Notícia</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL DE NOTÍCIA -->
+<div class="modal-noticia" id="modalNoticia" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+  <div class="modal-content">
+    <button class="btn-fechar-modal" id="fecharModal" aria-label="Fechar notícia">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <div class="modal-header">
+      <span class="modal-tag" id="modalTag">Categoria</span>
+      <h2 id="modalTitulo">Título da Notícia</h2>
+      <div class="hero-meta">
+        <span>Por Redação CampoVivo</span>
+        <span aria-hidden="true">•</span>
+        <time id="modalData">Há algumas horas</time>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p id="modalTexto">Carregando conteúdo...</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-voltar" id="btnVoltarModal">← Voltar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATE PARA INTERFACE DE IA -->
+<template id="template-ia-form">
+  <div id="ia-form-step">
+    <h2 style="font-family:'Playfair Display';margin-bottom:var(--sp-4);text-align:center;">Gerar Notícia com IA</h2>
+    <div class="form-group">
+      <label for="ia-fatos">O que aconteceu no campo?</label>
+      <textarea id="ia-fatos" rows="5" placeholder="Ex: Colheita de soja em MT atinge 80%, superando a média do ano passado..."></textarea>
+      <small id="ia-char" style="text-align:right;display:block;color:var(--texto-3);">0 / 800 caracteres</small>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4);margin-top:var(--sp-4);">
+      <div class="form-group">
+        <label for="ia-categoria">Editoria</label>
+        <select id="ia-categoria">
+          <option value="Graos">Grãos</option>
+          <option value="Pecuaria">Pecuária</option>
+          <option value="Mercado">Mercado</option>
+          <option value="Tecnologia">Tecnologia</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="ia-regiao">Região</label>
+        <input type="text" id="ia-regiao" value="Brasil">
+      </div>
+    </div>
+    <div style="margin-top:var(--sp-4);">
+      <label style="font-size:14px;font-weight:600;">Tom da Notícia</label>
+      <div class="ia-chips" style="display:flex;gap:8px;margin-top:8px;">
+        <button type="button" class="ia-chip ia-chip-ativo" data-val="informativo">Informativo</button>
+        <button type="button" class="ia-chip" data-val="analitico">Analítico</button>
+        <button type="button" class="ia-chip" data-val="urgente">Urgente</button>
+      </div>
+    </div>
+    <button id="ia-btn-gerar" class="btn-submit" style="margin-top:var(--sp-6);">Gerar Texto com Groq IA</button>
+  </div>
+
+  <div id="ia-loading" style="display:none;flex-direction:column;align-items:center;padding:var(--sp-10);text-align:center;">
+    <div class="loader-ia" style="width:40px;height:40px;border:4px solid var(--verde-claro);border-top-color:var(--verde);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px;"></div>
+    <h3 id="ia-loading-txt">Analisando fatos...</h3>
+    <p id="ia-loading-sub" style="font-size:13px;color:var(--texto-3);">Isso leva apenas alguns segundos.</p>
+  </div>
+
+  <div id="ia-resultado" style="display:none;">
+    <div style="background:var(--creme);padding:var(--sp-6);border-radius:var(--raio);border:1.5px solid var(--borda);">
+      <h3 id="ia-prev-titulo" style="font-family:'Playfair Display';margin-bottom:10px;"></h3>
+      <p id="ia-prev-sub" style="font-weight:600;font-size:14px;color:var(--texto-3);margin-bottom:15px;"></p>
+      <div id="ia-prev-corpo" style="white-space:pre-wrap;line-height:1.7;"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-top:20px;">
+      <button id="ia-btn-publicar" class="btn-submit">Publicar no Portal</button>
+      <button id="ia-btn-regenerar" class="btn-voltar">Refazer</button>
+    </div>
+    <button id="ia-btn-descartar" style="width:100%;background:none;border:none;color:#a32d2d;margin-top:15px;cursor:pointer;font-weight:600;">Descartar e Voltar</button>
+  </div>
+</template>
+
+<script src="api-config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
