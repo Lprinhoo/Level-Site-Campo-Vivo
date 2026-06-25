@@ -58,11 +58,7 @@
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
       </button>
-      <button class="btn-adicionar-noticia" id="abrirAdicionarNoticia" aria-label="Gerar notícia com IA" aria-expanded="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-      </button>
+      <!-- Botão "Gerar notícia com IA" removido -->
     </div>
   </div>
 </header>
@@ -170,7 +166,7 @@
         </div>
         <div class="clima-detalhes">
           <div class="clima-detalhe">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a6 6 0 0 1 0 12 6 6 0 0 1 0-12zm0 12v8"/><path d="M8 18h8"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a6 6 0 0 1 0 12 6 6 0 0 1 0-12zm0 12v8"/></svg>
             Umidade: 65%
           </div>
           <div class="clima-detalhe">
@@ -481,6 +477,20 @@
           </div>
         </div>
 
+        <!-- NOVO: Notícias RSS -->
+        <div class="widget" role="region" aria-label="Últimas Notícias RSS">
+          <div class="widget-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>
+            </svg>
+            Notícias RSS
+          </div>
+          <div class="widget-body" id="rssNewsContainer">
+            <!-- As notícias RSS serão carregadas aqui pelo JavaScript -->
+            <p>Carregando notícias...</p>
+          </div>
+        </div>
+
       </aside>
     </div>
 
@@ -556,96 +566,96 @@
       <div class="footer-social-links">
         <a href="#" aria-label="Facebook">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-        </a>
-        <a href="#" aria-label="Instagram">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
-        </a>
-        <a href="#" aria-label="Twitter / X">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        </a>
-        <a href="#" aria-label="YouTube">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.97C5.12 20 12 20 12 20s6.88 0 8.59-.45a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor"/></svg>
-        </a>
+            </a>
+            <a href="#" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+            </a>
+            <a href="#" aria-label="Twitter / X">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="#" aria-label="YouTube">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.97C5.12 20 12 20 12 20s6.88 0 8.59-.45a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor"/></svg>
+            </a>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</footer>
+    </footer>
 
-<!-- BUSCA OVERLAY -->
-<div class="busca-overlay" id="buscaOverlay" role="dialog" aria-modal="true" aria-labelledby="titulo-busca">
-  <div class="busca-box">
-    <button class="btn-fechar-busca" id="fecharBusca" aria-label="Fechar busca">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-    <h2 id="titulo-busca" class="sr-only">Pesquisar no portal</h2>
-    <div class="busca-input-wrapper">
-      <label for="busca-input-field" class="sr-only">Campo de busca</label>
-      <input type="search" id="busca-input-field" class="busca-input" placeholder="O que você procura no campo?" autocomplete="off">
-      <button class="btn-submit" style="width:auto;padding:0 var(--sp-6);">Buscar</button>
+    <!-- BUSCA OVERLAY -->
+    <div class="busca-overlay" id="buscaOverlay" role="dialog" aria-modal="true" aria-labelledby="titulo-busca">
+      <div class="busca-box">
+        <button class="btn-fechar-busca" id="fecharBusca" aria-label="Fechar busca">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <h2 id="titulo-busca" class="sr-only">Pesquisar no portal</h2>
+        <div class="busca-input-wrapper">
+          <label for="busca-input-field" class="sr-only">Campo de busca</label>
+          <input type="search" id="busca-input-field" class="busca-input" placeholder="O que você procura no campo?" autocomplete="off">
+          <button class="btn-submit" style="width:auto;padding:0 var(--sp-6);">Buscar</button>
+        </div>
+        <div class="busca-sugestoes">
+          <p>Temas populares:</p>
+          <button class="busca-tag">Soja Mato Grosso</button>
+          <button class="busca-tag">Preço do boi gordo</button>
+          <button class="busca-tag">Safra milho</button>
+          <button class="busca-tag">Crédito rural</button>
+          <button class="busca-tag">Drone agrícola</button>
+          <button class="busca-tag">El Niño 2025</button>
+          <button class="busca-tag">Plano Safra</button>
+        </div>
+      </div>
     </div>
-    <div class="busca-sugestoes">
-      <p>Temas populares:</p>
-      <button class="busca-tag">Soja Mato Grosso</button>
-      <button class="busca-tag">Preço do boi gordo</button>
-      <button class="busca-tag">Safra milho</button>
-      <button class="busca-tag">Crédito rural</button>
-      <button class="busca-tag">Drone agrícola</button>
-      <button class="busca-tag">El Niño 2025</button>
-      <button class="busca-tag">Plano Safra</button>
-    </div>
-  </div>
-</div>
 
-<!-- MODAL ADICIONAR NOTÍCIA -->
-<div class="modal-adicionar-noticia" id="modalAdicionarNoticia" role="dialog" aria-modal="true" aria-labelledby="modalAdicionarTitulo">
-  <div class="modal-content">
-    <button class="btn-fechar-modal" id="fecharAdicionarNoticia" aria-label="Fechar formulário">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-    <h2 id="modalAdicionarTitulo">Adicionar Nova Notícia</h2>
-    <form id="formAdicionarNoticia" novalidate>
-      <div class="form-group">
-        <label for="noticiaTitulo">Título</label>
-        <input type="text" id="noticiaTitulo" required autocomplete="off" placeholder="Título da notícia">
-      </div>
-      <div class="form-group">
-        <label for="noticiaCategoria">Categoria</label>
-        <input type="text" id="noticiaCategoria" required autocomplete="off" placeholder="ex: Grãos, Pecuária...">
-      </div>
-      <div class="form-group">
-        <label for="noticiaCor">Cor da Categoria</label>
-        <input type="color" id="noticiaCor" value="#27500a">
-      </div>
-      <div class="form-group">
-        <label for="noticiaTexto">Conteúdo da Notícia</label>
-        <textarea id="noticiaTexto" rows="8" required placeholder="Escreva o conteúdo completo aqui..."></textarea>
-      </div>
-      <button type="submit" class="btn-submit">Adicionar Notícia</button>
-    </form>
-  </div>
-</div>
-
-<!-- MODAL DE NOTÍCIA -->
-<div class="modal-noticia" id="modalNoticia" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
-  <div class="modal-content">
-    <button class="btn-fechar-modal" id="fecharModal" aria-label="Fechar notícia">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-    <div class="modal-header">
-      <span class="modal-tag" id="modalTag">Categoria</span>
-      <h2 id="modalTitulo">Título da Notícia</h2>
-      <div class="hero-meta">
-        <span>Por Redação CampoVivo</span>
-        <span aria-hidden="true">•</span>
-        <time id="modalData">Há algumas horas</time>
+    <!-- MODAL ADICIONAR NOTÍCIA -->
+    <div class="modal-adicionar-noticia" id="modalAdicionarNoticia" role="dialog" aria-modal="true" aria-labelledby="modalAdicionarTitulo">
+      <div class="modal-content">
+        <button class="btn-fechar-modal" id="fecharAdicionarNoticia" aria-label="Fechar formulário">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <h2 id="modalAdicionarTitulo">Adicionar Nova Notícia</h2>
+        <form id="formAdicionarNoticia" novalidate>
+          <div class="form-group">
+            <label for="noticiaTitulo">Título</label>
+            <input type="text" id="noticiaTitulo" required autocomplete="off" placeholder="Título da notícia">
+          </div>
+          <div class="form-group">
+            <label for="noticiaCategoria">Categoria</label>
+            <input type="text" id="noticiaCategoria" required autocomplete="off" placeholder="ex: Grãos, Pecuária...">
+          </div>
+          <div class="form-group">
+            <label for="noticiaCor">Cor da Categoria</label>
+            <input type="color" id="noticiaCor" value="#27500a">
+          </div>
+          <div class="form-group">
+            <label for="noticiaTexto">Conteúdo da Notícia</label>
+            <textarea id="noticiaTexto" rows="8" required placeholder="Escreva o conteúdo completo aqui..."></textarea>
+          </div>
+          <button type="submit" class="btn-submit">Adicionar Notícia</button>
+        </form>
       </div>
     </div>
+
+    <!-- MODAL DE NOTÍCIA -->
+    <div class="modal-noticia" id="modalNoticia" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+      <div class="modal-content">
+        <button class="btn-fechar-modal" id="fecharModal" aria-label="Fechar notícia">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <div class="modal-header">
+          <span class="modal-tag" id="modalTag">Categoria</span>
+          <h2 id="modalTitulo">Título da Notícia</h2>
+          <div class="hero-meta">
+            <span>Por Redação CampoVivo</span>
+            <span aria-hidden="true">•</span>
+            <time id="modalData">Há algumas horas</time>
+          </div>
+        </div>
     <div class="modal-body">
       <p id="modalTexto">Carregando conteúdo...</p>
     </div>
@@ -655,66 +665,12 @@
   </div>
 </div>
 
-<!-- TEMPLATE PARA INTERFACE DE IA -->
-<template id="template-ia-form">
-  <div id="ia-form-step">
-    <h2 style="font-family:'Playfair Display';margin-bottom:var(--sp-4);text-align:center;">Gerar Notícia com IA</h2>
-    <div class="form-group">
-      <label for="ia-fatos">O que aconteceu no campo?</label>
-      <textarea id="ia-fatos" rows="5" placeholder="Ex: Colheita de soja em MT atinge 80%, superando a média do ano passado..."></textarea>
-      <small id="ia-char" style="text-align:right;display:block;color:var(--texto-3);">0 / 800 caracteres</small>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4);margin-top:var(--sp-4);">
-      <div class="form-group">
-        <label for="ia-categoria">Editoria</label>
-        <select id="ia-categoria">
-          <option value="Graos">Grãos</option>
-          <option value="Pecuaria">Pecuária</option>
-          <option value="Mercado">Mercado</option>
-          <option value="Tecnologia">Tecnologia</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="ia-regiao">Região</label>
-        <input type="text" id="ia-regiao" value="Brasil">
-      </div>
-    </div>
-    <div style="margin-top:var(--sp-4);">
-      <label style="font-size:14px;font-weight:600;">Tom da Notícia</label>
-      <div class="ia-chips" style="display:flex;gap:8px;margin-top:8px;">
-        <button type="button" class="ia-chip ia-chip-ativo" data-val="informativo">Informativo</button>
-        <button type="button" class="ia-chip" data-val="analitico">Analítico</button>
-        <button type="button" class="ia-chip" data-val="urgente">Urgente</button>
-      </div>
-    </div>
-    <button id="ia-btn-gerar" class="btn-submit" style="margin-top:var(--sp-6);">Gerar Texto com Groq IA</button>
-  </div>
-
-  <div id="ia-loading" style="display:none;flex-direction:column;align-items:center;padding:var(--sp-10);text-align:center;">
-    <div class="loader-ia" style="width:40px;height:40px;border:4px solid var(--verde-claro);border-top-color:var(--verde);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px;"></div>
-    <h3 id="ia-loading-txt">Analisando fatos...</h3>
-    <p id="ia-loading-sub" style="font-size:13px;color:var(--texto-3);">Isso leva apenas alguns segundos.</p>
-  </div>
-
-  <div id="ia-resultado" style="display:none;">
-    <div style="background:var(--creme);padding:var(--sp-6);border-radius:var(--raio);border:1.5px solid var(--borda);">
-      <h3 id="ia-prev-titulo" style="font-family:'Playfair Display';margin-bottom:10px;"></h3>
-      <p id="ia-prev-sub" style="font-weight:600;font-size:14px;color:var(--texto-3);margin-bottom:15px;"></p>
-      <div id="ia-prev-corpo" style="white-space:pre-wrap;line-height:1.7;"></div>
-    </div>
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-top:20px;">
-      <button id="ia-btn-publicar" class="btn-submit">Publicar no Portal</button>
-      <button id="ia-btn-regenerar" class="btn-voltar">Refazer</button>
-    </div>
-    <button id="ia-btn-descartar" style="width:100%;background:none;border:none;color:#a32d2d;margin-top:15px;cursor:pointer;font-weight:600;">Descartar e Voltar</button>
-  </div>
-</template>
+<!-- TEMPLATE PARA INTERFACE DE IA (REMOVIDO) -->
 
 <!-- Scripts -->
-<script src="../../config/api-config.js"></script> <!-- Carregado primeiro, sem type="module" -->
 <script src="../../utils/utils.js" type="module"></script>
 <script src="../modals/modal-manager.js" type="module"></script>
-<script src="../ai-news/ai-service.js" type="module"></script>
 <script src="script.js" type="module"></script>
+<script src="../rss-news/rss-news-loader.js" type="module"></script>
 </body>
 </html>

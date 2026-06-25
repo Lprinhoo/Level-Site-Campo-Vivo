@@ -1,7 +1,7 @@
 import { mostrarToast } from '../../utils/utils.js';
 import { COR_CAT, LABEL_CAT, THUMB_CAT } from '../../data/category-data.js';
 import { openModal, closeModal } from '../modals/modal-manager.js';
-import { generateNewsWithAI } from '../ai-news/ai-service.js'; // Importa a função de serviço da IA
+import { initializeRssNewsLoader } from '../rss-news/rss-news-loader.js'; // Importa o novo módulo
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -264,230 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ════════════════════════════════════════════════
-  // 9. MODAL GERAR NOTÍCIA COM IA
+  // 9. MODAL GERAR NOTÍCIA COM IA (REMOVIDO)
   // ════════════════════════════════════════════════
 
-  const modalAdicionar = document.getElementById('modalAdicionarNoticia');
-  const btnAbrirAdicionar = document.getElementById('abrirAdicionarNoticia');
-
-  // Variáveis de Controle (Escopo do Módulo)
-  let tomSelecionado = 'informativo';
-  let noticiaGerada = null;
-  let stepTimer = null;
-  let iaAbortController = null;
-
-  // ── Funções de Apoio (Definidas antes do uso) ──
-
-  function setLoadingIA(ativo) {
-    const loadEl = modalAdicionar?.querySelector('#ia-loading');
-    if (loadEl) loadEl.style.display = ativo ? 'flex' : 'none';
-    
-    const btnGerar = modalAdicionar?.querySelector('#ia-btn-gerar') || 
-                     modalAdicionar?.querySelector('#ia-btn-regenerar');
-    
-    if (btnGerar) {
-      btnGerar.disabled = ativo;
-      btnGerar.style.opacity = ativo ? '0.55' : '1';
-    }
-
-    if (!ativo && stepTimer) {
-      clearInterval(stepTimer);
-      stepTimer = null;
-    }
-  }
-
-  function resetIAForm() {
-    if (iaAbortController) iaAbortController.abort();
-    if (stepTimer) clearInterval(stepTimer);
-
-    noticiaGerada = null;
-    tomSelecionado = 'informativo';
-
-    const fatos = modalAdicionar?.querySelector('#ia-fatos');
-    const charEl = modalAdicionar?.querySelector('#ia-char');
-    const formEl = modalAdicionar?.querySelector('#ia-form-step');
-    const resEl = modalAdicionar?.querySelector('#ia-resultado');
-
-    if (fatos) fatos.value = '';
-    if (charEl) charEl.textContent = '0 / 800 caracteres';
-    if (formEl) formEl.style.display = 'block';
-    if (resEl) resEl.style.display = 'none';
-
-    // Reseta chips visuais
-    modalAdicionar?.querySelectorAll('.ia-chip').forEach(c => {
-      c.classList.toggle('ia-chip-ativo', c.dataset.val === 'informativo');
-    });
-
-    setLoadingIA(false);
-  }
-
-  async function gerarComIA() {
-    const fatos = modalAdicionar?.querySelector('#ia-fatos')?.value.trim();
-    if (!fatos) { mostrarToast('Informe os fatos da notícia', 'erro'); return; }
-
-    iaAbortController = new AbortController();
-    const signal = iaAbortController.signal;
-
-    const catKey = modalAdicionar.querySelector('#ia-categoria')?.value || 'Graos';
-    const catLabel = LABEL_CAT[catKey] || catKey;
-    const regiao = modalAdicionar.querySelector('#ia-regiao')?.value || 'Brasil';
-
-    setLoadingIA(true);
-
-    const steps = [
-      ['Analisando os fatos...', 'Identificando contexto e relevância'],
-      ['Estruturando a notícia...', 'Criando título, subtítulo e corpo'],
-      ['Revisando o texto...', 'Ajustando tom e linguagem'],
-    ];
-
-    let si = 0;
-    stepTimer = setInterval(() => {
-      const txtEl = modalAdicionar.querySelector('#ia-loading-txt');
-      const subEl = modalAdicionar.querySelector('#ia-loading-sub');
-      if (txtEl && si < steps.length) {
-        txtEl.textContent = steps[si][0];
-        subEl.textContent = steps[si][1];
-        si++;
-      }
-    }, 2500);
-
-    try {
-      const noticia = await generateNewsWithAI(fatos, tomSelecionado, catLabel, signal);
-      
-      noticiaGerada = { ...noticia, catKey, catLabel, regiao };
-
-      modalAdicionar.querySelector('#ia-prev-titulo').textContent = noticia.titulo;
-      modalAdicionar.querySelector('#ia-prev-sub').textContent = noticia.subtitulo;
-      modalAdicionar.querySelector('#ia-prev-corpo').textContent = noticia.corpo;
-
-      modalAdicionar.querySelector('#ia-form-step').style.display = 'none';
-      modalAdicionar.querySelector('#ia-resultado').style.display = 'block';
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error(err); // O toast já é mostrado pelo ai-service
-      }
-    } finally {
-      setLoadingIA(false);
-    }
-  }
-
-  function publicarNoticia(n) {
-    const cor      = COR_CAT[n.catKey] || 'var(--verde)';
-    const thumb    = THUMB_CAT[n.catKey] || { emoji: '📰', bg: 'linear-gradient(135deg,#EAF3DE,#c0dd97)' };
-    const agora    = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    const resumo   = n.corpo.split('\n\n')[0].substring(0, 120) + '…';
-    const textoCompleto = n.subtitulo + '\n\n' + n.corpo;
-    const postId   = n.id || Date.now();
-
-    const attrs = el => {
-      el.setAttribute('data-post-id',    postId);
-      el.setAttribute('data-titulo',     n.titulo);
-      el.setAttribute('data-categoria',  n.catLabel);
-      el.setAttribute('data-cor',        cor);
-      el.setAttribute('data-texto',      textoCompleto);
-    };
-
-    // Grid de Últimas Notícias
-    const noticiasGrid = document.getElementById('noticiasGrid');
-    if (noticiasGrid) {
-      const card = document.createElement('article');
-      card.className = 'noticia-card noticia-clicavel new-card-animation'; // Adiciona classe para animação
-      attrs(card);
-      card.innerHTML = `
-        <div class="noticia-thumb" style="background:${thumb.bg}" aria-hidden="true">${thumb.emoji}</div>
-        <div class="noticia-body">
-          <span class="noticia-cat" style="color:${cor}">${n.catLabel}</span>
-          <h3>${n.titulo}</h3>
-          <p>${resumo}</p>
-          <div class="hero-meta"><time>Hoje, ${agora}</time></div>
-        </div>`;
-
-      // Verifica se a notícia deve ser exibida com base no filtro de categoria atual
-      const activeTab = document.querySelector('.categorias-tabs .tab.ativo');
-      const activeCat = activeTab ? activeTab.textContent.trim() : 'Tudo';
-      if (activeCat !== 'Tudo' && n.catLabel !== activeCat) card.style.display = 'none';
-
-      noticiasGrid.prepend(card);
-    }
-
-    // Lista Em Alta Agora (Barra Lateral)
-    const listaNoticias = document.getElementById('listaNoticias');
-    if (listaNoticias) {
-      const item = document.createElement('article');
-      item.className = 'lista-item noticia-clicavel';
-      attrs(item);
-      item.innerHTML = `
-        <div class="lista-thumb" style="background:${thumb.bg}" aria-hidden="true">${thumb.emoji}</div>
-        <div class="lista-body">
-          <span class="noticia-cat" style="color:${cor}">${n.catLabel}</span>
-          <h4>${n.titulo}</h4>
-          <div class="hero-meta"><time>Agora mesmo</time></div>
-        </div>`;
-
-      const activeTab = document.querySelector('.categorias-tabs .tab.ativo');
-      const activeCat = activeTab ? activeTab.textContent.trim() : 'Tudo';
-      if (activeCat !== 'Tudo' && n.catLabel !== activeCat) item.style.display = 'none';
-
-      listaNoticias.prepend(item);
-    }
-  }
-
-  // ── Inicialização e Eventos ──
-
-  // Injeção do Template (Apenas uma vez)
-  const templateIA = document.getElementById('template-ia-form');
-  const modalContentIA = modalAdicionar?.querySelector('.modal-content');
-  if (modalContentIA && templateIA) {
-    modalContentIA.innerHTML = '';
-    modalContentIA.appendChild(templateIA.content.cloneNode(true));
-  }
-
-  function abrirModalAdicionar(triggerElement = null) {
-    if (!modalAdicionar) return;
-    openModal(modalAdicionar, triggerElement);
-    btnAbrirAdicionar?.setAttribute('aria-expanded', 'true');
-  }
-
-  function fecharModalAdicionar() {
-    if (!modalAdicionar) return;
-    resetIAForm();
-    closeModal(modalAdicionar);
-    btnAbrirAdicionar?.setAttribute('aria-expanded', 'false');
-  }
-
-  if (modalAdicionar) {
-    btnAbrirAdicionar?.addEventListener('click', (e) => abrirModalAdicionar(e.currentTarget));
-    document.getElementById('admin-novo-post')?.addEventListener('click', (e) => abrirModalAdicionar(e.currentTarget));
-    modalAdicionar.querySelector('#fecharAdicionarNoticia')?.addEventListener('click', fecharModalAdicionar);
-    modalAdicionar.addEventListener('click', e => { if (e.target === modalAdicionar) fecharModalAdicionar(); });
-
-    modalAdicionar.querySelector('#ia-fatos')?.addEventListener('input', function() {
-      const charEl = modalAdicionar.querySelector('#ia-char');
-      if (charEl) charEl.textContent = `${this.value.length} / 800 caracteres`;
-    });
-
-    modalAdicionar.querySelectorAll('.ia-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        modalAdicionar.querySelectorAll('.ia-chip').forEach(c => c.classList.remove('ia-chip-ativo'));
-        chip.classList.add('ia-chip-ativo');
-        tomSelecionado = chip.dataset.val;
-      });
-    });
-
-    modalAdicionar.querySelector('#ia-btn-gerar')?.addEventListener('click', gerarComIA);
-    modalAdicionar.querySelector('#ia-btn-regenerar')?.addEventListener('click', gerarComIA);
-
-    modalAdicionar.querySelector('#ia-btn-publicar')?.addEventListener('click', () => {
-      if (!noticiaGerada) return;
-      publicarNoticia({ ...noticiaGerada, id: Date.now() });
-      fecharModalAdicionar();
-      mostrarToast('Notícia publicada!');
-    });
-
-    modalAdicionar.querySelector('#ia-btn-descartar')?.addEventListener('click', () => {
-      resetIAForm();
-    });
-  }
+  // A funcionalidade de IA foi removida.
+  // Os elementos e eventos relacionados a ela não são mais necessários.
 
   // ════════════════════════════════════════════════
   // 11. PLAYER MULTIMÍDIA
@@ -531,5 +312,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════
 
   // O listener global de keydown para 'Escape' foi movido para modal-manager.js
+
+  // Inicializa o carregador de notícias RSS
+  initializeRssNewsLoader();
 
 });
