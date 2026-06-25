@@ -75,7 +75,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  transition: background-color var(--dur-base) var(--ease-out), 
+  transition: background-color var(--dur-base) var(--ease-out),
               color var(--dur-base) var(--ease-out);
 }
 
@@ -153,8 +153,8 @@ header {
 .logo-sub  { font-size: 10px; color: var(--texto-3); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
 
 /* Nav Adjustments */
-nav { 
-  display: flex; 
+nav {
+  display: flex;
   gap: var(--sp-2);
   height: 48px;
   align-items: center;
@@ -171,8 +171,8 @@ nav a {
   position: relative;
 }
 nav a:hover { color: var(--verde); }
-nav a.ativo { 
-  color: var(--verde); 
+nav a.ativo {
+  color: var(--verde);
   font-weight: 700;
 }
 nav a.ativo::after {
@@ -235,7 +235,7 @@ nav a.ativo::after {
   background: var(--branco); border: 1px solid var(--borda);
   border-radius: var(--raio-lg); overflow: hidden;
   display: flex; flex-direction: column;
-  transition: box-shadow var(--dur-base) var(--ease-out), 
+  transition: box-shadow var(--dur-base) var(--ease-out),
               transform var(--dur-base) var(--ease-out),
               background-color var(--dur-base) var(--ease-out),
               border-color var(--dur-base) var(--ease-out);
@@ -329,7 +329,7 @@ nav a.ativo::after {
 .noticia-card {
   background: var(--branco); border: 1px solid var(--borda);
   border-radius: var(--raio); overflow: hidden;
-  transition: box-shadow var(--dur-base) var(--ease-out), 
+  transition: box-shadow var(--dur-base) var(--ease-out),
               transform var(--dur-base) var(--ease-out),
               background-color var(--dur-base) var(--ease-out),
               border-color var(--dur-base) var(--ease-out);
@@ -363,17 +363,17 @@ nav a.ativo::after {
 .analise-grid { display: flex; flex-direction: column; gap: var(--sp-2); }
 
 /* ── NEWSLETTER SECTION ── */
-.newsletter-section { 
+.newsletter-section {
   margin-top: 80px; padding: 60px 0; background: var(--surface-2); border-top: 1px solid var(--borda);
   transition: background-color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
 }
-.newsletter-box { 
-  display: flex; align-items: center; justify-content: space-between; 
-  gap: var(--sp-10); flex-wrap: wrap; 
+.newsletter-box {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-10); flex-wrap: wrap;
   background: var(--branco); padding: var(--sp-10); border-radius: var(--raio-xl);
   box-shadow: var(--sombra-md); border: 1px solid var(--borda);
-  transition: background-color var(--dur-base) var(--ease-out), 
-              border-color var(--dur-base) var(--ease-out), 
+  transition: background-color var(--dur-base) var(--ease-out),
+              border-color var(--dur-base) var(--ease-out),
               box-shadow var(--dur-base) var(--ease-out);
 }
 .newsletter-content { flex: 1; min-width: 300px; }
@@ -399,8 +399,8 @@ nav a.ativo::after {
 }
 .newsletter-social svg { width: 16px; height: 16px; }
 
-.newsletter-form input { 
-  flex: 1; padding: 14px var(--sp-4); border: 1.5px solid var(--borda); 
+.newsletter-form input {
+  flex: 1; padding: 14px var(--sp-4); border: 1.5px solid var(--borda);
   border-radius: var(--raio-sm); background: var(--creme); font-family: inherit;
 }
 .newsletter-form .btn-submit { width: auto; white-space: nowrap; padding: 0 var(--sp-8); }
@@ -658,7 +658,7 @@ footer { background: var(--verde-hover); color: #fff; padding: 60px 0 var(--sp-8
 .busca-box {
   background: var(--branco); width: 620px; padding: var(--sp-8); border-radius: var(--raio-xl);
   position: relative;
-  transform: translateY(-20px); 
+  transform: translateY(-20px);
   transition: transform var(--dur-slow) var(--ease-out),
               background-color var(--dur-base) var(--ease-out);
   box-shadow: var(--sombra-lg);
@@ -702,7 +702,7 @@ footer { background: var(--verde-hover); color: #fff; padding: 60px 0 var(--sp-8
 .modal-content {
   background: var(--branco); border-radius: var(--raio-xl); padding: var(--sp-10);
   width: 860px; max-width: 100%; max-height: 92vh; overflow-y: auto;
-  position: relative; transform: translateY(-28px); 
+  position: relative; transform: translateY(-28px);
   transition: transform var(--dur-slow) var(--ease-out),
               background-color var(--dur-base) var(--ease-out);
   box-shadow: var(--sombra-lg);

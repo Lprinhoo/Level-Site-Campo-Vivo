@@ -1,41 +1,9 @@
+import { mostrarToast } from '../../utils/utils.js';
+import { COR_CAT, LABEL_CAT, THUMB_CAT } from '../../data/category-data.js';
+import { openModal, closeModal } from '../modals/modal-manager.js';
+import { generateNewsWithAI } from '../ai-news/ai-service.js'; // Importa a função de serviço da IA
+
 document.addEventListener('DOMContentLoaded', () => {
-
-  // ════════════════════════════════════════════════
-  // CONSTANTES & MAPEAMENTOS
-  // ════════════════════════════════════════════════
-
-  const COR_CAT = {
-    Graos:        'var(--verde)',
-    Pecuaria:     'var(--terra)',
-    Tecnologia:   '#185FA5',
-    Clima:        '#533AB7',
-    Mercado:      'var(--terra-escuro)',
-    Politica:     '#993556',
-    Credito:      'var(--terra)',
-    Fruticultura: 'var(--verde-medio)',
-  };
-
-  const LABEL_CAT = {
-    Graos:        'Grãos',
-    Pecuaria:     'Pecuária',
-    Tecnologia:   'Tecnologia',
-    Clima:        'Clima',
-    Mercado:      'Mercado',
-    Politica:     'Política Agrícola',
-    Credito:      'Crédito Rural',
-    Fruticultura: 'Fruticultura',
-  };
-
-  const THUMB_CAT = {
-    Graos:        { emoji: '🌱', bg: 'linear-gradient(135deg,#EAF3DE,#c0dd97)' },
-    Pecuaria:     { emoji: '🐄', bg: 'linear-gradient(135deg,#FAEEDA,#FAC775)' },
-    Tecnologia:   { emoji: '🤖', bg: 'linear-gradient(135deg,#E6F1FB,#B5D4F4)' },
-    Clima:        { emoji: '🌦', bg: 'linear-gradient(135deg,#EEEDFE,#CECBF6)' },
-    Mercado:      { emoji: '📈', bg: 'linear-gradient(135deg,#FAEEDA,#EF9F27 80%)' },
-    Politica:     { emoji: '🏛',  bg: 'linear-gradient(135deg,#FBEAF0,#F4C0D1)' },
-    Credito:      { emoji: '💰', bg: 'linear-gradient(135deg,#FAEEDA,#FAC775)' },
-    Fruticultura: { emoji: '🍊', bg: 'linear-gradient(135deg,#EAF3DE,#97C459)' },
-  };
 
   // ════════════════════════════════════════════════
   // 0. DARK MODE
@@ -100,15 +68,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnFecharBusca = document.getElementById('fecharBusca');
 
   function abrirBusca() {
-    buscaOverlay?.classList.add('aberta');
+    if (!buscaOverlay) return;
+    openModal(buscaOverlay, btnAbrirBusca);
     btnAbrirBusca?.setAttribute('aria-expanded', 'true');
     setTimeout(() => buscaInput?.focus(), 80);
   }
 
   function fecharBusca() {
-    buscaOverlay?.classList.remove('aberta');
+    if (!buscaOverlay) return;
+    closeModal(buscaOverlay);
     btnAbrirBusca?.setAttribute('aria-expanded', 'false');
-    btnAbrirBusca?.focus();
   }
 
   btnAbrirBusca?.addEventListener('click', abrirBusca);
@@ -181,14 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
     modalTag.style.backgroundColor = cor || 'var(--verde)';
     modalTexto.textContent  = texto;
     modalData.textContent   = data || 'Agora mesmo';
-    modalNoticia.classList.add('aberto');
-    document.body.style.overflow = 'hidden';
-    modalNoticia.querySelector('.btn-fechar-modal')?.focus();
+    openModal(modalNoticia);
   }
 
   function fecharModalNoticia() {
-    modalNoticia?.classList.remove('aberto');
-    document.body.style.overflow = '';
+    if (!modalNoticia) return;
+    closeModal(modalNoticia);
   }
 
   document.getElementById('fecharModal')?.addEventListener('click', fecharModalNoticia);
@@ -233,8 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function fecharLogin() {
-    modalLogin?.classList.remove('aberto');
-    document.body.style.overflow = '';
+    if (!modalLogin) return;
+    closeModal(modalLogin);
   }
 
   linkLogin?.addEventListener('click', e => {
@@ -243,8 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (target) {
       trocarView(target, linkLogin);
     } else {
-      modalLogin?.classList.add('aberto');
-      document.body.style.overflow = 'hidden';
+      if (!modalLogin) return;
+      openModal(modalLogin, linkLogin);
     }
   });
 
@@ -358,8 +325,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const fatos = modalAdicionar?.querySelector('#ia-fatos')?.value.trim();
     if (!fatos) { mostrarToast('Informe os fatos da notícia', 'erro'); return; }
 
-    if (iaAbortController) iaAbortController.abort();
     iaAbortController = new AbortController();
+    const signal = iaAbortController.signal;
 
     const catKey = modalAdicionar.querySelector('#ia-categoria')?.value || 'Graos';
     const catLabel = LABEL_CAT[catKey] || catKey;
@@ -384,35 +351,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, 2500);
 
-    const prompt = `Você é um jornalista de agronegócio. Responda APENAS com um JSON puro:
-    { "titulo": "...", "subtitulo": "...", "corpo": "...", "tempo_leitura": "..." }
-    Fatos: ${fatos} (Tom: ${tomSelecionado}, Cat: ${catLabel})`;
-
     try {
-      if (!window.API_CONFIG || !API_CONFIG.GROQ_KEY) throw new Error('API Groq não configurada');
-
-      const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        signal: iaAbortController.signal,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_CONFIG.GROQ_KEY}`
-        },
-        body: JSON.stringify({
-          model: API_CONFIG.MODEL,
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
-
-      if (!resp.ok) throw new Error(`Erro API: ${resp.status}`);
-      const data = await resp.json();
-      const raw = data.choices?.[0]?.message?.content || '';
-
-      const clean = raw.replace(/```json|```/g, '').trim();
-      const noticia = JSON.parse(clean);
+      const noticia = await generateNewsWithAI(fatos, tomSelecionado, catLabel, signal);
       
-      if (!noticia.titulo || !noticia.corpo) throw new Error("JSON incompleto");
-
       noticiaGerada = { ...noticia, catKey, catLabel, regiao };
 
       modalAdicionar.querySelector('#ia-prev-titulo').textContent = noticia.titulo;
@@ -423,8 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
       modalAdicionar.querySelector('#ia-resultado').style.display = 'block';
     } catch (err) {
       if (err.name !== 'AbortError') {
-        mostrarToast(err.message, 'erro');
-        console.error(err);
+        console.error(err); // O toast já é mostrado pelo ai-service
       }
     } finally {
       setLoadingIA(false);
@@ -502,22 +442,22 @@ document.addEventListener('DOMContentLoaded', () => {
     modalContentIA.appendChild(templateIA.content.cloneNode(true));
   }
 
-  function abrirModalAdicionar() {
-    modalAdicionar?.classList.add('aberto');
-    document.body.style.overflow = 'hidden';
+  function abrirModalAdicionar(triggerElement = null) {
+    if (!modalAdicionar) return;
+    openModal(modalAdicionar, triggerElement);
     btnAbrirAdicionar?.setAttribute('aria-expanded', 'true');
   }
 
   function fecharModalAdicionar() {
+    if (!modalAdicionar) return;
     resetIAForm();
-    modalAdicionar?.classList.remove('aberto');
-    document.body.style.overflow = '';
+    closeModal(modalAdicionar);
     btnAbrirAdicionar?.setAttribute('aria-expanded', 'false');
   }
 
   if (modalAdicionar) {
-    btnAbrirAdicionar?.addEventListener('click', abrirModalAdicionar);
-    document.getElementById('admin-novo-post')?.addEventListener('click', abrirModalAdicionar);
+    btnAbrirAdicionar?.addEventListener('click', (e) => abrirModalAdicionar(e.currentTarget));
+    document.getElementById('admin-novo-post')?.addEventListener('click', (e) => abrirModalAdicionar(e.currentTarget));
     modalAdicionar.querySelector('#fecharAdicionarNoticia')?.addEventListener('click', fecharModalAdicionar);
     modalAdicionar.addEventListener('click', e => { if (e.target === modalAdicionar) fecharModalAdicionar(); });
 
@@ -590,46 +530,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 10. FUNÇÕES GLOBAIS E AUXILIARES
   // ════════════════════════════════════════════════
 
-  document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
-    fecharBusca(); fecharModalNoticia(); fecharModalAdicionar(); fecharLogin();
-  });
-
-  function mostrarToast(msg, tipo = 'sucesso') {
-    let toast = document.getElementById('cv-toast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'cv-toast';
-      toast.setAttribute('role', 'status');
-      toast.setAttribute('aria-live', 'polite');
-      Object.assign(toast.style, {
-        position:   'fixed',
-        bottom:     '24px',
-        right:      '24px',
-        padding:    '12px 20px',
-        borderRadius: '10px',
-        fontSize:   '13px',
-        fontWeight: '600',
-        zIndex:     '9999',
-        transform:  'translateY(60px)',
-        opacity:    '0',
-        transition: 'all 0.3s',
-        fontFamily: "'Inter', sans-serif",
-        color:      '#fff',
-        maxWidth:   '320px',
-        boxShadow:  '0 4px 16px rgba(0,0,0,0.15)',
-      });
-      document.body.appendChild(toast);
-    }
-    toast.textContent    = msg;
-    toast.style.background = tipo === 'erro' ? '#a32d2d' : 'var(--verde)';
-    toast.style.transform  = 'translateY(0)';
-    toast.style.opacity    = '1';
-    clearTimeout(toast._timer);
-    toast._timer = setTimeout(() => {
-      toast.style.transform = 'translateY(60px)';
-      toast.style.opacity   = '0';
-    }, 3500);
-  }
+  // O listener global de keydown para 'Escape' foi movido para modal-manager.js
 
 });
