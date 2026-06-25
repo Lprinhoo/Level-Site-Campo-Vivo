@@ -1,9 +1,14 @@
 import { mostrarToast } from '../../utils/utils.js';
 import { COR_CAT, LABEL_CAT, THUMB_CAT } from '../../data/category-data.js';
 import { openModal, closeModal } from '../modals/modal-manager.js';
-import { initializeRssNewsLoader } from '../rss-news/rss-news-loader.js'; // Importa o novo módulo
+import { fetchRssNews } from '../rss-news/rss-news-loader.js'; // Importa a função para buscar notícias RSS
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  // ════════════════════════════════════════════════
+  // VARIÁVEIS GLOBAIS DO MÓDULO
+  // ════════════════════════════════════════════════
+  let allNews = []; // Armazena todas as notícias RSS carregadas
 
   // ════════════════════════════════════════════════
   // 0. DARK MODE
@@ -108,30 +113,35 @@ document.addEventListener('DOMContentLoaded', () => {
         tab.classList.add('ativo');
         tab.setAttribute('aria-selected', 'true');
 
-        // Lógica de filtragem no grid de notícias
-        const cards = document.querySelectorAll('#noticiasGrid .noticia-card');
-        cards.forEach(card => {
-          const cardCat = card.getAttribute('data-categoria');
-          if (categoriaSelecionada === 'Tudo' || cardCat === categoriaSelecionada) {
-            card.style.display = ''; // Restaura o display original (flex) definido no CSS
-          } else {
-            card.style.display = 'none';
-          }
-        });
-
-        // Lógica de filtragem na barra lateral (Em Alta Agora)
-        const sidebarItems = document.querySelectorAll('#listaNoticias .lista-item');
-        sidebarItems.forEach(item => {
-          const itemCat = item.getAttribute('data-categoria');
-          if (categoriaSelecionada === 'Tudo' || itemCat === categoriaSelecionada) {
-            item.style.display = '';
-          } else {
-            item.style.display = 'none';
-          }
-        });
+        filterAndRenderNews(categoriaSelecionada);
       });
     });
   });
+
+  function filterAndRenderNews(selectedCategory) {
+    // Limpa todos os contêineres antes de renderizar
+    document.getElementById('heroPrincipalContainer').innerHTML = '';
+    document.getElementById('heroSidebarContainer').innerHTML = '';
+    document.getElementById('noticiasGrid').innerHTML = '';
+    document.getElementById('analiseGridContainer').innerHTML = '';
+    document.getElementById('listaNoticias').innerHTML = '';
+    document.getElementById('maisLidasList').innerHTML = '';
+    document.getElementById('rssNewsContainer').innerHTML = ''; // Limpa também o contêiner RSS
+
+    const filteredNews = allNews.filter(newsItem => {
+      // Normaliza a categoria da notícia para comparação
+      const newsCategory = newsItem.category ? newsItem.category.trim() : 'Outros';
+      // Normaliza a categoria selecionada para comparação
+      const normalizedSelectedCategory = selectedCategory.trim();
+
+      // Verifica se a categoria da notícia corresponde à categoria selecionada
+      // ou se a categoria selecionada é "Tudo"
+      return normalizedSelectedCategory === 'Tudo' || newsCategory === normalizedSelectedCategory;
+    });
+
+    // Renderiza as notícias filtradas
+    renderNewsSections(filteredNews);
+  }
 
   // ════════════════════════════════════════════════
   // 5. MODAL DE LEITURA DE NOTÍCIA
@@ -170,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Abrir modal de leitura
     const card = e.target.closest('.noticia-clicavel');
     if (card) {
-      const data = card.querySelector('.hero-meta time')?.textContent || 'Agora mesmo';
+      const data = card.getAttribute('data-data') || 'Agora mesmo'; // Usar data do atributo
       abrirModalNoticia(
         card.getAttribute('data-titulo'),
         card.getAttribute('data-categoria'),
@@ -271,6 +281,300 @@ document.addEventListener('DOMContentLoaded', () => {
   // Os elementos e eventos relacionados a ela não são mais necessários.
 
   // ════════════════════════════════════════════════
+  // FUNÇÕES DE RENDERIZAÇÃO DE NOTÍCIAS RSS
+  // ════════════════════════════════════════════════
+
+  function getCategoryInfo(newsItem) {
+    // Tenta mapear a categoria da notícia RSS para uma das categorias predefinidas
+    const itemCategory = newsItem.category || newsItem.source; // Usa source como fallback
+    let categoryKey = 'Outros'; // Categoria padrão
+
+    // Tenta encontrar uma correspondência flexível
+    for (const key in LABEL_CAT) {
+      if (newsItem.title.toLowerCase().includes(LABEL_CAT[key].toLowerCase()) ||
+          itemCategory.toLowerCase().includes(LABEL_CAT[key].toLowerCase())) {
+        categoryKey = key;
+        break;
+      }
+    }
+    // Se a fonte for "Conexão Agro" ou "Agro2", tenta inferir a categoria do título
+    if (newsItem.source.toLowerCase().includes('conexão agro') || newsItem.source.toLowerCase().includes('agro2')) {
+      if (newsItem.title.toLowerCase().includes('soja') || newsItem.title.toLowerCase().includes('milho') || newsItem.title.toLowerCase().includes('grãos')) {
+        categoryKey = 'Graos';
+      } else if (newsItem.title.toLowerCase().includes('pecuária') || newsItem.title.toLowerCase().includes('boi') || newsItem.title.toLowerCase().includes('carne')) {
+        categoryKey = 'Pecuaria';
+      } else if (newsItem.title.toLowerCase().includes('tecnologia') || newsItem.title.toLowerCase().includes('inovação') || newsItem.title.toLowerCase().includes('digital')) {
+        categoryKey = 'Tecnologia';
+      } else if (newsItem.title.toLowerCase().includes('clima') || newsItem.title.toLowerCase().includes('chuva') || newsItem.title.toLowerCase().includes('tempo')) {
+        categoryKey = 'Clima';
+      } else if (newsItem.title.toLowerCase().includes('mercado') || newsItem.title.toLowerCase().includes('preço') || newsItem.title.toLowerCase().includes('cotação')) {
+        categoryKey = 'Mercado';
+      } else if (newsItem.title.toLowerCase().includes('política') || newsItem.title.toLowerCase().includes('governo') || newsItem.title.toLowerCase().includes('safra')) {
+        categoryKey = 'Politica';
+      }
+    }
+
+
+    return {
+      category: LABEL_CAT[categoryKey] || 'Outros',
+      color: COR_CAT[categoryKey] || 'var(--verde)',
+      thumb: THUMB_CAT[categoryKey] || { emoji: '📰', bg: 'linear-gradient(135deg,#EAF3DE,#c0dd97)' }
+    };
+  }
+
+  function renderHeroPrincipal(newsItem) {
+    const container = document.getElementById('heroPrincipalContainer');
+    if (!container || !newsItem) return;
+
+    const { category, color, thumb } = getCategoryInfo(newsItem);
+    const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Agora mesmo';
+    const description = newsItem.contentSnippet || newsItem.description || '';
+
+    container.innerHTML = `
+      <article class="hero-principal noticia-clicavel"
+               data-titulo="${newsItem.title}"
+               data-categoria="${category}"
+               data-cor="${color}"
+               data-texto="${description}"
+               data-data="${formattedDate}"
+               data-link="${newsItem.link}">
+        <div class="hero-img-box">
+          ${thumb ? `<svg class="hero-deco" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+            <path d="M100 180 Q100 100 100 20" stroke="white" stroke-width="3"/>
+            <path d="M100 140 Q80 120 60 130" stroke="white" stroke-width="2.5"/>
+            <path d="M100 120 Q120 100 140 110" stroke="white" stroke-width="2.5"/>
+            <path d="M100 100 Q78 80 58 90" stroke="white" stroke-width="2.5"/>
+            <path d="M100 80 Q122 60 142 70" stroke="white" stroke-width="2.5"/>
+            <ellipse cx="60" cy="130" rx="14" ry="8" fill="white" transform="rotate(-30 60 130)"/>
+            <ellipse cx="140" cy="110" rx="14" ry="8" fill="white" transform="rotate(30 140 110)"/>
+            <ellipse cx="58" cy="90" rx="14" ry="8" fill="white" transform="rotate(-30 58 90)"/>
+            <ellipse cx="142" cy="70" rx="14" ry="8" fill="white" transform="rotate(30 142 70)"/>
+          </svg>` : ''}
+          <div class="hero-content-overlay">
+            <span class="hero-tag" style="background:${color}">${category}</span>
+            <h2 id="hero-title">${newsItem.title}</h2>
+          </div>
+        </div>
+        <div class="hero-principal-body">
+          <p>${description.substring(0, 200)}...</p>
+          <div class="hero-meta">
+            <span class="autor">${newsItem.source}</span>
+            <span aria-hidden="true">•</span>
+            <time>${formattedDate}</time>
+            <span aria-hidden="true">•</span>
+            <span>Leia mais</span>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderHeroSidebarCard(newsItem, container) {
+    if (!container || !newsItem) return;
+
+    const { category, color } = getCategoryInfo(newsItem);
+    const description = newsItem.contentSnippet || newsItem.description || '';
+
+    const card = document.createElement('article');
+    card.className = 'hero-card noticia-clicavel';
+    card.setAttribute('data-titulo', newsItem.title);
+    card.setAttribute('data-categoria', category);
+    card.setAttribute('data-cor', color);
+    card.setAttribute('data-texto', description);
+    card.setAttribute('data-data', newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Agora mesmo');
+    card.setAttribute('data-link', newsItem.link);
+
+    card.innerHTML = `
+      <span class="hero-card-tag" style="color:${color}">${category}</span>
+      <h3>${newsItem.title}</h3>
+    `;
+    container.appendChild(card);
+  }
+
+  function renderNoticiaCard(newsItem, container) {
+    const { category, color, thumb } = getCategoryInfo(newsItem);
+    const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : 'Agora mesmo';
+    const description = newsItem.contentSnippet || newsItem.description || '';
+
+    const card = document.createElement('article');
+    card.className = 'noticia-card noticia-clicavel';
+    card.setAttribute('data-post-id', newsItem.link); // Usar link como ID único
+    card.setAttribute('data-titulo', newsItem.title);
+    card.setAttribute('data-categoria', category);
+    card.setAttribute('data-cor', color);
+    card.setAttribute('data-texto', description);
+    card.setAttribute('data-data', formattedDate);
+    card.setAttribute('data-link', newsItem.link);
+
+    card.innerHTML = `
+      <div class="noticia-thumb" style="background:${thumb.bg}" aria-hidden="true">${thumb.emoji}</div>
+      <div class="noticia-body">
+        <span class="noticia-cat" style="color:${color}">${category}</span>
+        <h3>${newsItem.title}</h3>
+        <p>${description.substring(0, 120)}...</p>
+        <div class="hero-meta"><time>${formattedDate}</time></div>
+      </div>
+    `;
+    container.appendChild(card);
+  }
+
+  function renderAnaliseCard(newsItem, container) {
+    const { category, color } = getCategoryInfo(newsItem);
+    const description = newsItem.contentSnippet || newsItem.description || '';
+
+    const card = document.createElement('article');
+    card.className = 'analise-card noticia-clicavel';
+    card.setAttribute('data-titulo', newsItem.title);
+    card.setAttribute('data-categoria', category);
+    card.setAttribute('data-cor', color);
+    card.setAttribute('data-texto', description);
+    card.setAttribute('data-data', newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Agora mesmo');
+    card.setAttribute('data-link', newsItem.link);
+
+    card.innerHTML = `
+      <div class="analise-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
+      </div>
+      <div class="analise-body">
+        <span class="noticia-cat" style="color:${color}">${category}</span>
+        <h3>${newsItem.title}</h3>
+        <p>Por ${newsItem.source} — ${category}</p>
+      </div>
+    `;
+    container.appendChild(card);
+  }
+
+  function renderMaisLidaItem(newsItem, container, index) {
+    const { category, color } = getCategoryInfo(newsItem);
+    const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : 'Agora mesmo';
+    const description = newsItem.contentSnippet || newsItem.description || '';
+
+    const item = document.createElement('li');
+    item.className = 'mais-lida-item noticia-clicavel';
+    item.setAttribute('data-titulo', newsItem.title);
+    item.setAttribute('data-categoria', category);
+    item.setAttribute('data-cor', color);
+    item.setAttribute('data-texto', description);
+    item.setAttribute('data-data', newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Agora mesmo');
+    item.setAttribute('data-link', newsItem.link);
+
+    item.innerHTML = `
+      <span class="mais-lida-num">${String(index + 1).padStart(2, '0')}</span>
+      <div class="mais-lida-content">
+        <div class="mais-lida-titulo">${newsItem.title}</div>
+        <div class="mais-lida-meta">${newsItem.source} • ${formattedDate}</div>
+      </div>
+    `;
+    container.appendChild(item);
+  }
+
+  function renderRssNewsItem(newsItem, container) {
+    if (!container || !newsItem) return;
+
+    const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Data desconhecida';
+
+    const item = document.createElement("div");
+    item.className = "rss-news-item"; // Adiciona uma classe para estilização futura
+
+    item.innerHTML = `
+      <h3><a href="${newsItem.link}" target="_blank" rel="noopener noreferrer">${newsItem.title}</a></h3>
+      <p>${newsItem.source} • ${formattedDate}</p>
+      <hr/>
+    `;
+    container.appendChild(item);
+  }
+
+  function renderNewsSections(newsData) {
+    const heroPrincipalContainer = document.getElementById('heroPrincipalContainer');
+    const heroSidebarContainer = document.getElementById('heroSidebarContainer');
+    const noticiasGrid = document.getElementById('noticiasGrid');
+    const analiseGridContainer = document.getElementById('analiseGridContainer');
+    const maisLidasList = document.getElementById('maisLidasList');
+    const rssNewsContainer = document.getElementById('rssNewsContainer');
+
+    // Limpa os contêineres antes de renderizar
+    heroPrincipalContainer.innerHTML = '';
+    heroSidebarContainer.innerHTML = '';
+    noticiasGrid.innerHTML = '';
+    analiseGridContainer.innerHTML = '';
+    maisLidasList.innerHTML = '';
+    rssNewsContainer.innerHTML = '';
+
+    if (newsData.length === 0) {
+      noticiasGrid.innerHTML = '<p>Nenhuma notícia encontrada para esta categoria.</p>';
+      rssNewsContainer.innerHTML = '<p>Nenhuma notícia RSS disponível no momento.</p>';
+      return;
+    }
+
+    let newsIndex = 0;
+
+    // Hero Principal (1ª notícia)
+    if (newsData[newsIndex]) {
+      renderHeroPrincipal(newsData[newsIndex]);
+      newsIndex++;
+    }
+
+    // Hero Sidebar (2ª e 3ª notícias)
+    for (let i = 0; i < 2 && newsData[newsIndex]; i++) {
+      renderHeroSidebarCard(newsData[newsIndex], heroSidebarContainer);
+      newsIndex++;
+    }
+
+    // Últimas Notícias (a partir da próxima notícia disponível, 3 cards)
+    for (let i = 0; i < 3 && newsData[newsIndex]; i++) {
+      renderNoticiaCard(newsData[newsIndex], noticiasGrid);
+      newsIndex++;
+    }
+
+    // Análise de Mercado (2 cards)
+    for (let i = 0; i < 2 && newsData[newsIndex]; i++) {
+      renderAnaliseCard(newsData[newsIndex], analiseGridContainer);
+      newsIndex++;
+    }
+
+    // Em Alta Agora (3 itens)
+    for (let i = 0; i < 3 && newsData[newsIndex]; i++) {
+      renderMaisLidaItem(newsData[newsIndex], maisLidasList, i);
+      newsIndex++;
+    }
+
+    // Notícias RSS (os próximos 5 itens restantes, se houver)
+    for (let i = 0; i < 5 && newsData[newsIndex]; i++) {
+      renderRssNewsItem(newsData[newsIndex], rssNewsContainer);
+      newsIndex++;
+    }
+    
+    // Se não houver notícias para o contêiner RSS, exibe mensagem
+    if (rssNewsContainer.innerHTML === '') {
+      rssNewsContainer.innerHTML = '<p>Nenhuma notícia RSS disponível no momento.</p>';
+    }
+
+    mostrarToast("Notícias RSS carregadas com sucesso!", "sucesso");
+  }
+
+  // ════════════════════════════════════════════════
+  // Inicialização do Carregador de Notícias RSS
+  // ════════════════════════════════════════════════
+
+  // Função de inicialização principal
+  async function initNewsLoading() {
+    try {
+      const news = await fetchRssNews(); // Chama a função para buscar os dados
+      if (news && news.length > 0) {
+        allNews = news; // Armazena todas as notícias
+        renderNewsSections(allNews); // Renderiza as seções iniciais
+      } else {
+        mostrarToast("Nenhuma notícia RSS disponível.", "info");
+      }
+    } catch (error) {
+      console.error("Erro na inicialização do carregador RSS:", error);
+      mostrarToast("Falha ao carregar notícias RSS.", "erro");
+    }
+  }
+
+  initNewsLoading(); // Chama a função de inicialização
+
+  // ════════════════════════════════════════════════
   // 11. PLAYER MULTIMÍDIA
   // ════════════════════════════════════════════════
 
@@ -312,8 +616,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════
 
   // O listener global de keydown para 'Escape' foi movido para modal-manager.js
-
-  // Inicializa o carregador de notícias RSS
-  initializeRssNewsLoader();
 
 });

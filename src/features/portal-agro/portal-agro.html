@@ -82,61 +82,12 @@
 
     <!-- HERO -->
     <section class="hero" aria-labelledby="hero-title">
-      <article class="hero-principal noticia-clicavel"
-               data-titulo="Preços da soja disparam no mercado internacional com quebra de safra nos EUA"
-               data-categoria="Grãos"
-               data-cor="var(--verde)"
-               data-texto="O mercado global de commodities reagiu com forte alta após o relatório do USDA confirmar perdas significativas nas lavouras americanas devido ao clima extremo. No Brasil, produtores já reavaliam suas estratégias de comercialização para aproveitar o prêmio de exportação elevado nos portos. Especialistas indicam que a saca pode atingir novos patamares históricos nas próximas semanas, impulsionada pela demanda chinesa aquecida.">
-        <div class="hero-img-box">
-          <!-- Decorative SVG wheat -->
-          <svg class="hero-deco" viewBox="0 0 200 200" fill="none" aria-hidden="true">
-            <path d="M100 180 Q100 100 100 20" stroke="white" stroke-width="3"/>
-            <path d="M100 140 Q80 120 60 130" stroke="white" stroke-width="2.5"/>
-            <path d="M100 120 Q120 100 140 110" stroke="white" stroke-width="2.5"/>
-            <path d="M100 100 Q78 80 58 90" stroke="white" stroke-width="2.5"/>
-            <path d="M100 80 Q122 60 142 70" stroke="white" stroke-width="2.5"/>
-            <ellipse cx="60" cy="130" rx="14" ry="8" fill="white" transform="rotate(-30 60 130)"/>
-            <ellipse cx="140" cy="110" rx="14" ry="8" fill="white" transform="rotate(30 140 110)"/>
-            <ellipse cx="58" cy="90" rx="14" ry="8" fill="white" transform="rotate(-30 58 90)"/>
-            <ellipse cx="142" cy="70" rx="14" ry="8" fill="white" transform="rotate(30 142 70)"/>
-          </svg>
-          <div class="hero-content-overlay">
-            <span class="hero-tag">Destaque</span>
-            <h2 id="hero-title">Preços da soja disparam no mercado internacional com quebra de safra nos EUA</h2>
-          </div>
-        </div>
-        <div class="hero-principal-body">
-          <p>Relatório do USDA confirma perdas severas nas lavouras americanas, impulsionando os preços em Chicago e elevando os prêmios nos portos brasileiros para níveis recordes.</p>
-          <div class="hero-meta">
-            <span class="autor">Redação CampoVivo</span>
-            <span aria-hidden="true">•</span>
-            <time>Hoje, 10:45</time>
-            <span aria-hidden="true">•</span>
-            <span>5 min de leitura</span>
-          </div>
-        </div>
+      <article class="hero-principal" id="heroPrincipalContainer">
+        <!-- Notícia principal RSS será carregada aqui -->
       </article>
 
-      <aside class="hero-sidebar" aria-label="Widgets laterais">
-        <!-- Notícia Secundária 1 -->
-        <article class="hero-card noticia-clicavel"
-                 data-titulo="Exportações de carne batem recorde no primeiro semestre"
-                 data-categoria="Pecuária"
-                 data-cor="var(--terra)"
-                 data-texto="O setor pecuário brasileiro celebra números históricos...">
-          <span class="hero-card-tag" style="color:var(--terra)">Pecuária</span>
-          <h3>Exportações de carne batem recorde no primeiro semestre</h3>
-        </article>
-
-        <!-- Notícia Secundária 2 -->
-        <article class="hero-card noticia-clicavel"
-                 data-titulo="Nova tecnologia de irrigação reduz consumo de água em 30%"
-                 data-categoria="Tecnologia"
-                 data-cor="#185FA5"
-                 data-texto="Drones e sensores de umidade integrados estão mudando a gestão hídrica...">
-          <span class="hero-card-tag" style="color:#185FA5">Tecnologia</span>
-          <h3>Nova tecnologia de irrigação reduz consumo de água em 30%</h3>
-        </article>
+      <aside class="hero-sidebar" id="heroSidebarContainer" aria-label="Widgets laterais">
+        <!-- Notícias secundárias RSS serão carregadas aqui -->
       </aside>
     </section>
 
@@ -207,50 +158,7 @@
         </a>
       </div>
       <div class="noticias-grid" id="noticiasGrid">
-        <article class="noticia-card noticia-clicavel"
-                 data-post-id="101"
-                 data-titulo="Plano Safra 2025/26: Governo anuncia R$ 400 bilhões em crédito rural"
-                 data-categoria="Política Agrícola"
-                 data-cor="#993556"
-                 data-texto="O novo Plano Safra traz volume recorde de recursos para o médio e grande produtor, com foco em agricultura de baixo carbono e sustentabilidade.">
-          <div class="noticia-thumb" style="background:linear-gradient(135deg,#FBEAF0,#F4C0D1)" aria-hidden="true">🏛</div>
-          <div class="noticia-body">
-            <span class="noticia-cat" style="color:#993556">Política Agrícola</span>
-            <h3>Plano Safra 2025/26: Governo anuncia R$ 400 bilhões</h3>
-            <p>Novo plano foca em juros reduzidos para práticas sustentáveis e recuperação de pastagens degradadas…</p>
-            <div class="hero-meta"><time>Hoje, 09:15</time></div>
-          </div>
-        </article>
-
-        <article class="noticia-card noticia-clicavel"
-                 data-post-id="102"
-                 data-titulo="Colheitadeiras autônomas começam a operar em escala comercial em Goiás"
-                 data-categoria="Tecnologia"
-                 data-cor="#185FA5"
-                 data-texto="Máquinas sem cabine utilizam IA e conectividade 5G para otimizar a colheita, reduzindo desperdícios e custos operacionais significativamente nas grandes propriedades do Centro-Oeste.">
-          <div class="noticia-thumb" style="background:linear-gradient(135deg,#E6F1FB,#B5D4F4)" aria-hidden="true">🤖</div>
-          <div class="noticia-body">
-            <span class="noticia-cat" style="color:#185FA5">Tecnologia</span>
-            <h3>Colheitadeiras autônomas começam a operar em Goiás</h3>
-            <p>Utilizando IA e 5G, nova geração de máquinas promete revolucionar a produtividade no campo…</p>
-            <div class="hero-meta"><time>Ontem, 16:40</time></div>
-          </div>
-        </article>
-
-        <article class="noticia-card noticia-clicavel"
-                 data-post-id="103"
-                 data-titulo="Clima: La Niña deve trazer chuvas acima da média para o Sul em 2026"
-                 data-categoria="Clima"
-                 data-cor="#533AB7"
-                 data-texto="Modelos meteorológicos indicam o retorno do fenômeno La Niña, o que deve impactar o regime de chuvas nas principais regiões produtoras do país, especialmente no Rio Grande do Sul e Paraná.">
-          <div class="noticia-thumb" style="background:linear-gradient(135deg,#EEEDFE,#CECBF6)" aria-hidden="true">🌦</div>
-          <div class="noticia-body">
-            <span class="noticia-cat" style="color:#533AB7">Clima</span>
-            <h3>La Niña deve trazer chuvas acima da média para o Sul</h3>
-            <p>Fenômeno meteorológico deve se intensificar no próximo semestre, exigindo atenção dos produtores…</p>
-            <div class="hero-meta"><time>Ontem, 14:20</time></div>
-          </div>
-        </article>
+        <!-- Notícias RSS serão carregadas aqui -->
       </div>
     </section>
 
@@ -342,28 +250,8 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="14" height="14" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
             </a>
           </div>
-          <div class="analise-grid">
-            <article class="analise-card noticia-clicavel" data-titulo="Projeções para a Safra 2025" data-categoria="Mercado" data-cor="var(--terra-escuro)" data-texto="Analistas preveem um cenário de estabilidade para os preços das commodities...">
-              <div class="analise-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
-              </div>
-              <div class="analise-body">
-                <span class="noticia-cat" style="color:var(--terra-escuro)">Mercado</span>
-                <h3>Projeções para a Safra 2025: O que esperar do câmbio?</h3>
-                <p>Por Dr. Arnaldo Silva — Economista Chefe</p>
-              </div>
-            </article>
-
-            <article class="analise-card noticia-clicavel" data-titulo="Logística e Infraestrutura" data-categoria="Logística" data-cor="var(--verde-medio)" data-texto="A malha ferroviária brasileira tem avançado em pontos estratégicos...">
-              <div class="analise-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="1" y="3" width="15" height="13"/><polyline points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-              </div>
-              <div class="analise-body">
-                <span class="noticia-cat" style="color:var(--verde-medio)">Logística</span>
-                <h3>Escoamento da Safra: Os novos gargalos do Arco Norte</h3>
-                <p>Por Eng. Ricardo Porto — Consultor de Logística</p>
-              </div>
-            </article>
+          <div class="analise-grid" id="analiseGridContainer">
+            <!-- Análises RSS serão carregadas aqui -->
           </div>
         </section>
 
@@ -372,7 +260,9 @@
           <div class="section-header">
             <h2 class="section-title" id="mais-noticias-title">Em Alta Agora</h2>
           </div>
-          <div class="lista-noticias" id="listaNoticias"></div>
+          <div class="lista-noticias" id="listaNoticias">
+            <!-- Notícias "Em Alta Agora" RSS serão carregadas aqui -->
+          </div>
         </section>
       </div>
 
@@ -393,25 +283,26 @@
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <circle cx="12" cy="12" r="4" fill="#f5a623" stroke="#f5a623"/>
                   <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#f5a623" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </div>
-              <div>
-                <div class="clima-temp">28°C</div>
-                <div class="clima-cidade">Sorriso, MT</div>
-              </div>
-            </div>
-            <div class="clima-detalhes">
-              <div class="clima-detalhe">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a6 6 0 0 1 0 12 6 6 0 0 1 0-12zm0 12v8"/></svg>
-                Umidade: 65%
-              </div>
-              <div class="clima-detalhe">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/></svg>
-                Chuva: 0 mm
-              </div>
-            </div>
+              <path d="M6 15a6 6 0 0 1 12 0H6z" fill="#9bc4e2" opacity=".7"/>
+            </svg>
+          </div>
+          <div>
+            <div class="clima-temp">28°C</div>
+            <div class="clima-cidade">Sorriso, MT</div>
           </div>
         </div>
+        <div class="clima-detalhes">
+          <div class="clima-detalhe">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a6 6 0 0 1 0 12 6 6 0 0 1 0-12zm0 12v8"/></svg>
+            Umidade: 65%
+          </div>
+          <div class="clima-detalhe">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/></svg>
+            Chuva: 0 mm
+          </div>
+        </div>
+      </div>
+    </div>
 
         <!-- MAIS LIDAS -->
         <div class="widget" role="region" aria-label="Mais lidas">
@@ -422,29 +313,8 @@
             Mais Lidas
           </div>
           <div class="widget-body">
-            <ol class="mais-lidas-lista">
-              <li class="mais-lida-item noticia-clicavel"
-                  data-titulo="Novo fertilizante orgânico promete reduzir custos em 20%"
-                  data-categoria="Tecnologia"
-                  data-cor="#185FA5"
-                  data-texto="Pesquisadores brasileiros desenvolvem biofertilizante à base de resíduos da agroindústria com alta eficiência nutricional.">
-                <span class="mais-lida-num">01</span>
-                <div class="mais-lida-content">
-                  <div class="mais-lida-titulo">Novo fertilizante orgânico promete reduzir custos em 20%</div>
-                  <div class="mais-lida-meta">Tecnologia • há 2h</div>
-                </div>
-              </li>
-              <li class="mais-lida-item noticia-clicavel"
-                  data-titulo="Crise nos portos: Filas de navios para embarque de milho chegam a 20 dias"
-                  data-categoria="Mercado"
-                  data-cor="var(--terra-escuro)"
-                  data-texto="Problemas logísticos e excesso de chuvas em Santos atrasam exportação da safrinha brasileira.">
-                <span class="mais-lida-num">02</span>
-                <div class="mais-lida-content">
-                  <div class="mais-lida-titulo">Crise nos portos: Filas para embarque de milho aumentam</div>
-                  <div class="mais-lida-meta">Mercado • há 4h</div>
-                </div>
-              </li>
+            <ol class="mais-lidas-lista" id="maisLidasList">
+              <!-- Notícias "Mais Lidas" RSS serão carregadas aqui -->
             </ol>
           </div>
         </div>
@@ -664,8 +534,6 @@
     </div>
   </div>
 </div>
-
-<!-- TEMPLATE PARA INTERFACE DE IA (REMOVIDO) -->
 
 <!-- Scripts -->
 <script src="../../utils/utils.js" type="module"></script>
