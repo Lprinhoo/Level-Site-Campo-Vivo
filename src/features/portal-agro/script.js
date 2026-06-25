@@ -153,14 +153,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalTexto    = document.getElementById('modalTexto');
   const modalData     = document.getElementById('modalData');
 
-  function abrirModalNoticia(titulo, categoria, cor, texto, data) {
+  function abrirModalNoticia(titulo, categoria, cor, texto, data, linkOriginal, fonte) {
     if (!modalNoticia) return;
     modalTitulo.textContent = titulo;
     modalTag.textContent    = categoria;
     modalTag.style.backgroundColor = cor || 'var(--verde)';
-    modalTexto.textContent  = texto;
-    modalData.textContent   = data || 'Agora mesmo';
+    modalData.textContent   = data;
+    
+    // Limpa e injeta o texto com o link de atribuição nativa estilizado
+    modalTexto.innerHTML = `
+      <p class="modal-body-text">${texto}</p>
+      <div class="fonte-atribuicao-box">
+        <p class="fonte-atribuicao-text">
+          Esta notícia foi originalmente publicada por <strong>${fonte}</strong>. Para ler a matéria completa com todas as imagens e atualizações, acesse o veículo oficial.
+        </p>
+        <a href="${linkOriginal}" target="_blank" rel="noopener noreferrer" class="btn-link-original">
+          Ler matéria completa no ${fonte} ↗
+        </a>
+      </div>
+    `;
     openModal(modalNoticia);
+    // Aplica a cor de fundo do box de atribuição dinamicamente
+    const atribuicaoBox = modalTexto.querySelector('.fonte-atribuicao-box');
+    if (atribuicaoBox) {
+      atribuicaoBox.style.borderLeftColor = cor;
+    }
+    const btnLinkOriginal = modalTexto.querySelector('.btn-link-original');
+    if (btnLinkOriginal) {
+      btnLinkOriginal.style.background = cor;
+    }
   }
 
   function fecharModalNoticia() {
@@ -180,13 +201,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Abrir modal de leitura
     const card = e.target.closest('.noticia-clicavel');
     if (card) {
-      const data = card.getAttribute('data-data') || 'Agora mesmo'; // Usar data do atributo
+      const data = card.getAttribute('data-data') || 'Agora mesmo';
+      const linkOriginal = card.getAttribute('data-link');
+      const fonte = card.getAttribute('data-fonte') || 'Fonte Original';
+      
+      // Altera a abertura do modal incluindo o botão dinâmico para a fonte externa
       abrirModalNoticia(
         card.getAttribute('data-titulo'),
         card.getAttribute('data-categoria'),
         card.getAttribute('data-cor'),
         card.getAttribute('data-texto'),
-        data,
+        `${data} • Via ${fonte}`,
+        linkOriginal,
+        fonte
       );
     }
   });
@@ -285,36 +312,30 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════
 
   function getCategoryInfo(newsItem) {
-    // Tenta mapear a categoria da notícia RSS para uma das categorias predefinidas
-    const itemCategory = newsItem.category || newsItem.source; // Usa source como fallback
+    // Mapeamento de palavras-chave para categorias
+    const keywordMap = {
+      'Graos': ['soja', 'milho', 'trigo', 'arroz', 'grãos', 'safra'],
+      'Pecuaria': ['pecuária', 'boi', 'gado', 'carne', 'leite', 'frango', 'suíno'],
+      'Tecnologia': ['tecnologia', 'inovação', 'digital', 'drone', 'inteligência artificial', 'ia', 'software', 'aplicativo'],
+      'Clima': ['clima', 'chuva', 'tempo', 'seca', 'fenômeno', 'el niño', 'la niña'],
+      'Mercado': ['mercado', 'preço', 'cotação', 'commodities', 'exportação', 'importação', 'economia'],
+      'Politica': ['política', 'governo', 'subsídio', 'crédito rural', 'plano safra', 'legislação'],
+      'Credito': ['crédito', 'financiamento', 'banco', 'juros'],
+      'Fruticultura': ['fruta', 'fruticultura', 'citrus', 'uva', 'maçã']
+    };
+
+    const titleAndContent = `${newsItem.title || ''} ${newsItem.contentSnippet || ''} ${newsItem.description || ''}`.toLowerCase();
     let categoryKey = 'Outros'; // Categoria padrão
 
-    // Tenta encontrar uma correspondência flexível
-    for (const key in LABEL_CAT) {
-      if (newsItem.title.toLowerCase().includes(LABEL_CAT[key].toLowerCase()) ||
-          itemCategory.toLowerCase().includes(LABEL_CAT[key].toLowerCase())) {
+    // Tenta inferir a categoria por palavras-chave
+    for (const key in keywordMap) {
+      if (keywordMap[key].some(keyword => titleAndContent.includes(keyword))) {
         categoryKey = key;
         break;
       }
     }
-    // Se a fonte for "Conexão Agro" ou "Agro2", tenta inferir a categoria do título
-    if (newsItem.source.toLowerCase().includes('conexão agro') || newsItem.source.toLowerCase().includes('agro2')) {
-      if (newsItem.title.toLowerCase().includes('soja') || newsItem.title.toLowerCase().includes('milho') || newsItem.title.toLowerCase().includes('grãos')) {
-        categoryKey = 'Graos';
-      } else if (newsItem.title.toLowerCase().includes('pecuária') || newsItem.title.toLowerCase().includes('boi') || newsItem.title.toLowerCase().includes('carne')) {
-        categoryKey = 'Pecuaria';
-      } else if (newsItem.title.toLowerCase().includes('tecnologia') || newsItem.title.toLowerCase().includes('inovação') || newsItem.title.toLowerCase().includes('digital')) {
-        categoryKey = 'Tecnologia';
-      } else if (newsItem.title.toLowerCase().includes('clima') || newsItem.title.toLowerCase().includes('chuva') || newsItem.title.toLowerCase().includes('tempo')) {
-        categoryKey = 'Clima';
-      } else if (newsItem.title.toLowerCase().includes('mercado') || newsItem.title.toLowerCase().includes('preço') || newsItem.title.toLowerCase().includes('cotação')) {
-        categoryKey = 'Mercado';
-      } else if (newsItem.title.toLowerCase().includes('política') || newsItem.title.toLowerCase().includes('governo') || newsItem.title.toLowerCase().includes('safra')) {
-        categoryKey = 'Politica';
-      }
-    }
 
-
+    // Fallback para categoria desconhecida se não encontrar correspondência
     return {
       category: LABEL_CAT[categoryKey] || 'Outros',
       color: COR_CAT[categoryKey] || 'var(--verde)',
@@ -326,9 +347,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('heroPrincipalContainer');
     if (!container || !newsItem) return;
 
-    const { category, color, thumb } = getCategoryInfo(newsItem);
+    const { category, color } = getCategoryInfo(newsItem);
     const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Agora mesmo';
     const description = newsItem.contentSnippet || newsItem.description || '';
+    const sourceName = newsItem.source || 'Fonte Externa';
 
     container.innerHTML = `
       <article class="hero-principal noticia-clicavel"
@@ -337,9 +359,11 @@ document.addEventListener('DOMContentLoaded', () => {
                data-cor="${color}"
                data-texto="${description}"
                data-data="${formattedDate}"
+               data-fonte="${sourceName}"
                data-link="${newsItem.link}">
         <div class="hero-img-box">
-          ${thumb ? `<svg class="hero-deco" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+          <!-- SVG Decorative wheat (mantido, mas pode ser substituído por imagem se disponível no RSS) -->
+          <svg class="hero-deco" viewBox="0 0 200 200" fill="none" aria-hidden="true">
             <path d="M100 180 Q100 100 100 20" stroke="white" stroke-width="3"/>
             <path d="M100 140 Q80 120 60 130" stroke="white" stroke-width="2.5"/>
             <path d="M100 120 Q120 100 140 110" stroke="white" stroke-width="2.5"/>
@@ -349,24 +373,39 @@ document.addEventListener('DOMContentLoaded', () => {
             <ellipse cx="140" cy="110" rx="14" ry="8" fill="white" transform="rotate(30 140 110)"/>
             <ellipse cx="58" cy="90" rx="14" ry="8" fill="white" transform="rotate(-30 58 90)"/>
             <ellipse cx="142" cy="70" rx="14" ry="8" fill="white" transform="rotate(30 142 70)"/>
-          </svg>` : ''}
+          </svg>
           <div class="hero-content-overlay">
-            <span class="hero-tag" style="background:${color}">${category}</span>
+            <span class="hero-tag">${category}</span>
             <h2 id="hero-title">${newsItem.title}</h2>
           </div>
         </div>
         <div class="hero-principal-body">
-          <p>${description.substring(0, 200)}...</p>
+          <p>${description.substring(0, 220)}...</p>
           <div class="hero-meta">
-            <span class="autor">${newsItem.source}</span>
+            <span class="autor">Fonte: <strong>${sourceName}</strong></span>
             <span aria-hidden="true">•</span>
             <time>${formattedDate}</time>
             <span aria-hidden="true">•</span>
-            <span>Leia mais</span>
+            <span>Leia mais →</span>
           </div>
         </div>
       </article>
     `;
+    // Aplica a cor de fundo dinamicamente via JS para o hero-img-box
+    const heroImgBox = container.querySelector('.hero-img-box');
+    if (heroImgBox) {
+      heroImgBox.style.background = `linear-gradient(135deg, ${color}dd, #1a2e05)`;
+    }
+    // Aplica a cor da tag dinamicamente via JS
+    const heroTag = container.querySelector('.hero-tag');
+    if (heroTag) {
+      heroTag.style.background = color;
+    }
+    // Aplica a cor do "Leia mais" dinamicamente via JS
+    const readMore = container.querySelector('.hero-meta span:last-child');
+    if (readMore) {
+      readMore.style.color = color;
+    }
   }
 
   function renderHeroSidebarCard(newsItem, container) {
@@ -374,6 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const { category, color } = getCategoryInfo(newsItem);
     const description = newsItem.contentSnippet || newsItem.description || '';
+    const sourceName = newsItem.source || 'Fonte Externa';
 
     const card = document.createElement('article');
     card.className = 'hero-card noticia-clicavel';
@@ -382,6 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.setAttribute('data-cor', color);
     card.setAttribute('data-texto', description);
     card.setAttribute('data-data', newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Agora mesmo');
+    card.setAttribute('data-fonte', sourceName);
     card.setAttribute('data-link', newsItem.link);
 
     card.innerHTML = `
@@ -395,6 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { category, color, thumb } = getCategoryInfo(newsItem);
     const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : 'Agora mesmo';
     const description = newsItem.contentSnippet || newsItem.description || '';
+    const sourceName = newsItem.source || 'Fonte';
 
     const card = document.createElement('article');
     card.className = 'noticia-card noticia-clicavel';
@@ -404,14 +446,18 @@ document.addEventListener('DOMContentLoaded', () => {
     card.setAttribute('data-cor', color);
     card.setAttribute('data-texto', description);
     card.setAttribute('data-data', formattedDate);
+    card.setAttribute('data-fonte', sourceName);
     card.setAttribute('data-link', newsItem.link);
 
     card.innerHTML = `
       <div class="noticia-thumb" style="background:${thumb.bg}" aria-hidden="true">${thumb.emoji}</div>
       <div class="noticia-body">
-        <span class="noticia-cat" style="color:${color}">${category}</span>
+        <div class="noticia-meta-top">
+          <span class="noticia-cat" style="color:${color}">${category}</span>
+          <span class="noticia-fonte">${sourceName}</span>
+        </div>
         <h3>${newsItem.title}</h3>
-        <p>${description.substring(0, 120)}...</p>
+        <p>${description.substring(0, 110)}...</p>
         <div class="hero-meta"><time>${formattedDate}</time></div>
       </div>
     `;
@@ -421,6 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderAnaliseCard(newsItem, container) {
     const { category, color } = getCategoryInfo(newsItem);
     const description = newsItem.contentSnippet || newsItem.description || '';
+    const sourceName = newsItem.source || 'Fonte Externa';
 
     const card = document.createElement('article');
     card.className = 'analise-card noticia-clicavel';
@@ -429,6 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.setAttribute('data-cor', color);
     card.setAttribute('data-texto', description);
     card.setAttribute('data-data', newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Agora mesmo');
+    card.setAttribute('data-fonte', sourceName);
     card.setAttribute('data-link', newsItem.link);
 
     card.innerHTML = `
@@ -438,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="analise-body">
         <span class="noticia-cat" style="color:${color}">${category}</span>
         <h3>${newsItem.title}</h3>
-        <p>Por ${newsItem.source} — ${category}</p>
+        <p>Por ${sourceName} — ${category}</p>
       </div>
     `;
     container.appendChild(card);
@@ -448,6 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { category, color } = getCategoryInfo(newsItem);
     const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : 'Agora mesmo';
     const description = newsItem.contentSnippet || newsItem.description || '';
+    const sourceName = newsItem.source || 'Fonte Externa';
 
     const item = document.createElement('li');
     item.className = 'mais-lida-item noticia-clicavel';
@@ -456,13 +505,14 @@ document.addEventListener('DOMContentLoaded', () => {
     item.setAttribute('data-cor', color);
     item.setAttribute('data-texto', description);
     item.setAttribute('data-data', newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Agora mesmo');
+    item.setAttribute('data-fonte', sourceName);
     item.setAttribute('data-link', newsItem.link);
 
     item.innerHTML = `
       <span class="mais-lida-num">${String(index + 1).padStart(2, '0')}</span>
       <div class="mais-lida-content">
         <div class="mais-lida-titulo">${newsItem.title}</div>
-        <div class="mais-lida-meta">${newsItem.source} • ${formattedDate}</div>
+        <div class="mais-lida-meta">${sourceName} • ${formattedDate}</div>
       </div>
     `;
     container.appendChild(item);
@@ -472,13 +522,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!container || !newsItem) return;
 
     const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Data desconhecida';
+    const sourceName = newsItem.source || 'Fonte Externa';
 
     const item = document.createElement("div");
     item.className = "rss-news-item"; // Adiciona uma classe para estilização futura
 
     item.innerHTML = `
       <h3><a href="${newsItem.link}" target="_blank" rel="noopener noreferrer">${newsItem.title}</a></h3>
-      <p>${newsItem.source} • ${formattedDate}</p>
+      <p>${sourceName} • ${formattedDate}</p>
       <hr/>
     `;
     container.appendChild(item);
@@ -507,48 +558,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let newsIndex = 0;
+    const totalNews = newsData.length;
 
     // Hero Principal (1ª notícia)
-    if (newsData[newsIndex]) {
+    if (newsIndex < totalNews) {
       renderHeroPrincipal(newsData[newsIndex]);
       newsIndex++;
     }
 
     // Hero Sidebar (2ª e 3ª notícias)
-    for (let i = 0; i < 2 && newsData[newsIndex]; i++) {
+    for (let i = 0; i < 2 && newsIndex < totalNews; i++) {
       renderHeroSidebarCard(newsData[newsIndex], heroSidebarContainer);
       newsIndex++;
     }
 
     // Últimas Notícias (a partir da próxima notícia disponível, 3 cards)
-    for (let i = 0; i < 3 && newsData[newsIndex]; i++) {
+    for (let i = 0; i < 3 && newsIndex < totalNews; i++) {
       renderNoticiaCard(newsData[newsIndex], noticiasGrid);
       newsIndex++;
     }
 
     // Análise de Mercado (2 cards)
-    for (let i = 0; i < 2 && newsData[newsIndex]; i++) {
+    for (let i = 0; i < 2 && newsIndex < totalNews; i++) {
       renderAnaliseCard(newsData[newsIndex], analiseGridContainer);
       newsIndex++;
     }
 
     // Em Alta Agora (3 itens)
-    for (let i = 0; i < 3 && newsData[newsIndex]; i++) {
+    for (let i = 0; i < 3 && newsIndex < totalNews; i++) {
       renderMaisLidaItem(newsData[newsIndex], maisLidasList, i);
       newsIndex++;
     }
 
     // Notícias RSS (os próximos 5 itens restantes, se houver)
-    for (let i = 0; i < 5 && newsData[newsIndex]; i++) {
-      renderRssNewsItem(newsData[newsIndex], rssNewsContainer);
-      newsIndex++;
+    // Usamos um novo índice para garantir que não pegamos notícias já usadas nas seções principais
+    const rssWidgetNews = newsData.slice(newsIndex, newsIndex + 5);
+    if (rssWidgetNews.length > 0) {
+      rssWidgetNews.forEach(item => renderRssNewsItem(item, rssNewsContainer));
+    } else {
+      rssNewsContainer.innerHTML = '<p>Nenhuma notícia RSS adicional disponível.</p>';
     }
     
-    // Se não houver notícias para o contêiner RSS, exibe mensagem
-    if (rssNewsContainer.innerHTML === '') {
-      rssNewsContainer.innerHTML = '<p>Nenhuma notícia RSS disponível no momento.</p>';
-    }
-
     mostrarToast("Notícias RSS carregadas com sucesso!", "sucesso");
   }
 
