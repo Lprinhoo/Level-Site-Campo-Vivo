@@ -1,68 +1,55 @@
-let openModals = []; // Pilha de modais abertos
+// ══════════════════════════════════════════════════════════════
+//  modal-manager.js — Gerenciador de modais com classe .ativo
+// ══════════════════════════════════════════════════════════════
+let openModals = [];
 
 function toggleBodyScroll(disable) {
-  if (disable) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    // Só reabilita o scroll se não houver outros modais abertos
-    if (openModals.length === 0) {
-      document.body.style.overflow = '';
-    }
-  }
+  document.body.style.overflow = disable ? 'hidden' : '';
 }
 
 export function openModal(modalElement, triggerElement = null) {
   if (!modalElement) return;
-
-  // Se o modal já está aberto, não faz nada
   if (openModals.includes(modalElement)) return;
 
-  modalElement.classList.add('aberto');
+  // Usa .ativo — alinhado com o CSS do portal
+  modalElement.classList.add('ativo');
+  modalElement.removeAttribute('aria-hidden');
   modalElement.setAttribute('aria-hidden', 'false');
   toggleBodyScroll(true);
 
-  // Armazena o elemento que abriu o modal para focar nele ao fechar
-  modalElement._triggerElement = triggerElement;
+  modalElement._triggerElement = triggerElement || null;
   openModals.push(modalElement);
 
-  // Foca no primeiro elemento focável dentro do modal ou no próprio modal
-  setTimeout(() => {
-    const focusableElement = modalElement.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-    if (focusableElement) {
-      focusableElement.focus();
-    } else {
-      modalElement.focus(); // Garante que o modal seja focável
-    }
-  }, 80);
+  // Foca no primeiro elemento focável
+  requestAnimationFrame(() => {
+    const focusable = modalElement.querySelector(
+      'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable) focusable.focus();
+    else modalElement.setAttribute('tabindex', '-1'), modalElement.focus();
+  });
 }
 
 export function closeModal(modalElement) {
-  if (!modalElement || !openModals.includes(modalElement)) return;
+  if (!modalElement) return;
+  if (!openModals.includes(modalElement)) return;
 
-  modalElement.classList.remove('aberto');
+  modalElement.classList.remove('ativo');
   modalElement.setAttribute('aria-hidden', 'true');
 
-  // Remove o modal da pilha
-  openModals = openModals.filter(modal => modal !== modalElement);
+  openModals = openModals.filter(m => m !== modalElement);
 
-  toggleBodyScroll(false);
+  if (openModals.length === 0) toggleBodyScroll(false);
 
-  // Retorna o foco para o elemento que abriu o modal, se houver
-  if (modalElement._triggerElement) {
-    modalElement._triggerElement.focus();
-    modalElement._triggerElement = null; // Limpa a referência
-  } else if (openModals.length > 0) {
-    // Se houver outro modal aberto, foca no último modal da pilha
-    const lastOpenModal = openModals[openModals.length - 1];
-    lastOpenModal.focus();
-  }
+  const trigger = modalElement._triggerElement;
+  modalElement._triggerElement = null;
+  if (trigger) trigger.focus();
 }
 
-// Listener global para fechar o modal com a tecla ESC
+// Fecha com ESC
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && openModals.length > 0) {
-    e.preventDefault(); // Previne o comportamento padrão do navegador
-    const topModal = openModals[openModals.length - 1];
-    closeModal(topModal);
+    e.preventDefault();
+    closeModal(openModals[openModals.length - 1]);
   }
 });

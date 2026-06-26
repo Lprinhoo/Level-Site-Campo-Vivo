@@ -1,45 +1,59 @@
 import { mostrarToast } from '../../utils/utils.js';
 import { COR_CAT, LABEL_CAT, THUMB_CAT } from '../../data/category-data.js';
 import { openModal, closeModal } from '../modals/modal-manager.js';
-import { fetchRssNews } from '../rss-news/rss-news-loader.js'; // Importa a função para buscar notícias RSS
+import { fetchRssNews } from '../rss-news/rss-news-loader.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
   // ════════════════════════════════════════════════
-  // VARIÁVEIS GLOBAIS DO MÓDULO
+  // ESTADO GLOBAL
   // ════════════════════════════════════════════════
-  let allNews = []; // Armazena todas as notícias RSS carregadas
+  const state = {
+    allNews:         [],
+    currentCategory: 'Tudo',
+    currentSearch:   '',
+    currentSort:     'recente',
+  };
 
   // ════════════════════════════════════════════════
   // 0. DARK MODE
   // ════════════════════════════════════════════════
-
   const btnDarkMode = document.getElementById('toggleDarkMode');
 
   function updateDarkModeIcon() {
-    if (btnDarkMode) {
-      btnDarkMode.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-    }
+    if (!btnDarkMode) return;
+    const dark = document.body.classList.contains('dark-mode');
+    btnDarkMode.setAttribute('aria-label', dark ? 'Alternar para tema claro' : 'Alternar para tema escuro');
+    btnDarkMode.innerHTML = dark
+      ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+           <circle cx="12" cy="12" r="5"/>
+           <line x1="12" y1="1" x2="12" y2="3"/>
+           <line x1="12" y1="21" x2="12" y2="23"/>
+           <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+           <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+           <line x1="1" y1="12" x2="3" y2="12"/>
+           <line x1="21" y1="12" x2="23" y2="12"/>
+           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+         </svg>`
+      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+         </svg>`;
   }
 
-  // O tema inicial agora é aplicado no topo do body no HTML para evitar flashes.
-  // Aqui apenas sincronizamos o ícone correto.
   updateDarkModeIcon();
 
   btnDarkMode?.addEventListener('click', () => {
-    // Dispara a animação adicionando a classe e removendo após o término (450ms)
     btnDarkMode.classList.add('theme-animating');
     setTimeout(() => btnDarkMode.classList.remove('theme-animating'), 450);
-
     document.body.classList.toggle('dark-mode');
     updateDarkModeIcon();
     localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
   });
 
   // ════════════════════════════════════════════════
-  // 1. DATA AUTOMÁTICA NA TOPBAR
+  // 1. DATA NA TOPBAR
   // ════════════════════════════════════════════════
-
   const topbarTime = document.querySelector('.topbar time');
   if (topbarTime) {
     const d = new Date().toLocaleDateString('pt-BR', {
@@ -50,25 +64,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════
-  // 2. EFEITO HEADER AO ROLAR
+  // 2. HEADER SCROLL
   // ════════════════════════════════════════════════
-
-  const header = document.querySelector('header');
+  const header = document.getElementById('site-header');
   window.addEventListener('scroll', () => {
-    if (!header) return;
-    if (window.scrollY > 50) {
-      header.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-    } else {
-      header.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)';
-    }
+    header?.classList.toggle('scrolled', window.scrollY > 40);
   }, { passive: true });
 
   // ════════════════════════════════════════════════
   // 3. BUSCA OVERLAY
   // ════════════════════════════════════════════════
-
-  const buscaOverlay = document.getElementById('buscaOverlay');
-  const buscaInput   = document.getElementById('busca-input-field');
+  const buscaOverlay   = document.getElementById('buscaOverlay');
+  const buscaInput     = document.getElementById('busca-input-field');
   const btnAbrirBusca  = document.getElementById('abrirBusca');
   const btnFecharBusca = document.getElementById('fecharBusca');
 
@@ -76,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!buscaOverlay) return;
     openModal(buscaOverlay, btnAbrirBusca);
     btnAbrirBusca?.setAttribute('aria-expanded', 'true');
-    setTimeout(() => buscaInput?.focus(), 80);
+    setTimeout(() => buscaInput?.focus(), 100);
   }
 
   function fecharBusca() {
@@ -89,103 +96,129 @@ document.addEventListener('DOMContentLoaded', () => {
   btnFecharBusca?.addEventListener('click', fecharBusca);
   buscaOverlay?.addEventListener('click', e => { if (e.target === buscaOverlay) fecharBusca(); });
 
-  // Sugestões de busca via teclado
   document.querySelectorAll('.busca-tag').forEach(tag => {
     tag.addEventListener('click', () => {
-      if (buscaInput) buscaInput.value = tag.textContent;
-      buscaInput?.focus();
+      if (buscaInput) { buscaInput.value = tag.textContent; buscaInput.focus(); }
     });
   });
 
   // ════════════════════════════════════════════════
-  // 4. TABS DE CATEGORIAS
+  // 4. FILTROS POR CATEGORIA
   // ════════════════════════════════════════════════
-
-  document.querySelectorAll('.categorias-tabs').forEach(container => {
-    container.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        const categoriaSelecionada = tab.textContent.trim();
-
-        container.querySelectorAll('.tab').forEach(t => {
-          t.classList.remove('ativo');
-          t.setAttribute('aria-selected', 'false');
-        });
-        tab.classList.add('ativo');
-        tab.setAttribute('aria-selected', 'true');
-
-        filterAndRenderNews(categoriaSelecionada);
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(t => {
+        t.classList.remove('ativo');
+        t.setAttribute('aria-selected', 'false');
       });
+      tab.classList.add('ativo');
+      tab.setAttribute('aria-selected', 'true');
+      state.currentCategory = tab.dataset.cat || 'Tudo';
+      applyFiltersAndRender();
     });
   });
 
-  function filterAndRenderNews(selectedCategory) {
-    // Limpa todos os contêineres antes de renderizar
-    document.getElementById('heroPrincipalContainer').innerHTML = '';
-    document.getElementById('heroSidebarContainer').innerHTML = '';
-    document.getElementById('noticiasGrid').innerHTML = '';
-    document.getElementById('analiseGridContainer').innerHTML = '';
-    document.getElementById('listaNoticias').innerHTML = '';
-    document.getElementById('maisLidasList').innerHTML = '';
-    document.getElementById('rssNewsContainer').innerHTML = ''; // Limpa também o contêiner RSS
+  // ════════════════════════════════════════════════
+  // 5. BUSCA POR PALAVRA-CHAVE
+  // ════════════════════════════════════════════════
+  let searchDebounce;
 
-    const filteredNews = allNews.filter(newsItem => {
-      // Normaliza a categoria da notícia para comparação
-      const newsCategory = newsItem.category ? newsItem.category.trim() : 'Outros';
-      // Normaliza a categoria selecionada para comparação
-      const normalizedSelectedCategory = selectedCategory.trim();
+  function onSearchInput(val) {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(() => {
+      state.currentSearch = val.trim().toLowerCase();
+      // Sincroniza os dois campos
+      const inline = document.getElementById('busca-inline');
+      const hdr    = document.getElementById('header-search-input');
+      if (inline && document.activeElement !== inline) inline.value = val;
+      if (hdr    && document.activeElement !== hdr)    hdr.value    = val;
+      applyFiltersAndRender();
+    }, 280);
+  }
 
-      // Verifica se a categoria da notícia corresponde à categoria selecionada
-      // ou se a categoria selecionada é "Tudo"
-      return normalizedSelectedCategory === 'Tudo' || newsCategory === normalizedSelectedCategory;
+  document.getElementById('busca-inline')?.addEventListener('input', e => onSearchInput(e.target.value));
+  document.getElementById('header-search-input')?.addEventListener('input', e => onSearchInput(e.target.value));
+
+  // ════════════════════════════════════════════════
+  // 6. ORDENAÇÃO
+  // ════════════════════════════════════════════════
+  document.getElementById('sort-select')?.addEventListener('change', e => {
+    state.currentSort = e.target.value;
+    applyFiltersAndRender();
+  });
+
+  // ════════════════════════════════════════════════
+  // 7. LÓGICA DE FILTRO + SORT + BUSCA
+  // ════════════════════════════════════════════════
+  function applyFiltersAndRender() {
+    let result = [...state.allNews];
+
+    if (state.currentCategory !== 'Tudo') {
+      result = result.filter(n => getCategoryInfo(n).category === state.currentCategory);
+    }
+
+    if (state.currentSearch) {
+      result = result.filter(n => {
+        const hay = `${n.title || ''} ${n.contentSnippet || ''} ${n.description || ''}`.toLowerCase();
+        return hay.includes(state.currentSearch);
+      });
+    }
+
+    result.sort((a, b) => {
+      const da = a.date ? new Date(a.date) : new Date(0);
+      const db = b.date ? new Date(b.date) : new Date(0);
+      return state.currentSort === 'recente' ? db - da : da - db;
     });
 
-    // Renderiza as notícias filtradas
-    renderNewsSections(filteredNews);
+    renderAllSections(result);
   }
 
   // ════════════════════════════════════════════════
-  // 5. MODAL DE LEITURA DE NOTÍCIA
+  // 8. MODAL DE NOTÍCIA
   // ════════════════════════════════════════════════
+  const modalNoticia         = document.getElementById('modalNoticia');
+  const modalTitulo          = document.getElementById('modalTitulo');
+  const modalTag             = document.getElementById('modalTag');
+  const modalTexto           = document.getElementById('modalTexto');
+  const modalData            = document.getElementById('modalData');
+  const modalFonte           = document.getElementById('modalFonte');
+  const modalAtribuicao      = document.getElementById('modalAtribuicao');
+  const modalAtribuicaoTexto = document.getElementById('modalAtribuicaoTexto');
+  const modalLinkOriginal    = document.getElementById('modalLinkOriginal');
 
-  const modalNoticia  = document.getElementById('modalNoticia');
-  const modalTitulo   = document.getElementById('modalTitulo');
-  const modalTag      = document.getElementById('modalTag');
-  const modalTexto    = document.getElementById('modalTexto');
-  const modalData     = document.getElementById('modalData');
+  function abrirModalNoticia({ titulo, categoria, cor, texto, data, link, fonte }) {
+    if (!modalNoticia) { console.warn('Modal #modalNoticia não encontrado no DOM'); return; }
 
-  function abrirModalNoticia(titulo, categoria, cor, texto, data, linkOriginal, fonte) {
-    if (!modalNoticia) return;
-    modalTitulo.textContent = titulo;
-    modalTag.textContent    = categoria;
-    modalTag.style.backgroundColor = cor || 'var(--verde)';
-    modalData.textContent   = data;
-    
-    // Limpa e injeta o texto com o link de atribuição nativa estilizado
-    modalTexto.innerHTML = `
-      <p class="modal-body-text">${texto}</p>
-      <div class="fonte-atribuicao-box">
-        <p class="fonte-atribuicao-text">
-          Esta notícia foi originalmente publicada por <strong>${fonte}</strong>. Para ler a matéria completa com todas as imagens e atualizações, acesse o veículo oficial.
-        </p>
-        <a href="${linkOriginal}" target="_blank" rel="noopener noreferrer" class="btn-link-original">
-          Ler matéria completa no ${fonte} ↗
-        </a>
-      </div>
-    `;
+    modalTitulo.textContent = titulo  || 'Sem título';
+    modalTag.textContent    = categoria || 'Notícia';
+    modalTag.style.background = cor || 'var(--verde)';
+    modalData.textContent   = data   || '';
+    modalFonte.textContent  = fonte  || '';
+    modalTexto.textContent  = texto  || '';
+
+    if (modalAtribuicaoTexto) {
+      modalAtribuicaoTexto.textContent =
+        `Esta notícia foi originalmente publicada por ${fonte}. Para ler a matéria completa com todas as imagens e atualizações, acesse o veículo oficial.`;
+    }
+
+    if (modalLinkOriginal) {
+      modalLinkOriginal.href = link || '#';
+      modalLinkOriginal.style.background = cor || 'var(--verde)';
+      modalLinkOriginal.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        Ler matéria completa em <strong>${fonte}</strong>
+      `;
+    }
+
+    if (modalAtribuicao) modalAtribuicao.style.borderLeftColor = cor || 'var(--verde)';
+
     openModal(modalNoticia);
-    // Aplica a cor de fundo do box de atribuição dinamicamente
-    const atribuicaoBox = modalTexto.querySelector('.fonte-atribuicao-box');
-    if (atribuicaoBox) {
-      atribuicaoBox.style.borderLeftColor = cor;
-    }
-    const btnLinkOriginal = modalTexto.querySelector('.btn-link-original');
-    if (btnLinkOriginal) {
-      btnLinkOriginal.style.background = cor;
-    }
   }
 
   function fecharModalNoticia() {
-    if (!modalNoticia) return;
     closeModal(modalNoticia);
   }
 
@@ -194,477 +227,508 @@ document.addEventListener('DOMContentLoaded', () => {
   modalNoticia?.addEventListener('click', e => { if (e.target === modalNoticia) fecharModalNoticia(); });
 
   // ════════════════════════════════════════════════
-  // 6. DELEGAÇÃO DE EVENTOS: CLIQUE EM CARDS
+  // 9. DELEGAÇÃO DE CLIQUES — CARDS DE NOTÍCIA
+  //    Regra: .btn-ler-mais → abre link externo
+  //           qualquer outra área do card → abre modal
   // ════════════════════════════════════════════════
-
   document.body.addEventListener('click', e => {
-    // Abrir modal de leitura
+    // Botão "Ler matéria" — é um <a> com target=_blank, deixa o browser agir
+    if (e.target.closest('.btn-ler-mais')) return;
+
     const card = e.target.closest('.noticia-clicavel');
-    if (card) {
-      const data = card.getAttribute('data-data') || 'Agora mesmo';
-      const linkOriginal = card.getAttribute('data-link');
-      const fonte = card.getAttribute('data-fonte') || 'Fonte Original';
-      
-      // Altera a abertura do modal incluindo o botão dinâmico para a fonte externa
-      abrirModalNoticia(
-        card.getAttribute('data-titulo'),
-        card.getAttribute('data-categoria'),
-        card.getAttribute('data-cor'),
-        card.getAttribute('data-texto'),
-        `${data} • Via ${fonte}`,
-        linkOriginal,
-        fonte
-      );
-    }
-  });
+    if (!card) return;
 
-  // ════════════════════════════════════════════════
-  // 7. NAVEGAÇÃO DE VIEWS (HOME / ADMIN)
-  // ════════════════════════════════════════════════
+    const fonte = card.getAttribute('data-fonte') || 'Fonte Original';
+    const data  = card.getAttribute('data-data')  || '';
 
-  const modalLogin    = document.getElementById('modalLogin');
-  const linkLogin     = document.getElementById('linkLogin');
-  const btnFecharLogin = document.getElementById('fecharLogin');
-  const formLogin     = document.getElementById('formLogin');
-
-  function trocarView(targetId, activeLink) {
-    document.querySelectorAll('.nav-link, #linkLogin').forEach(l => l.classList.remove('ativo'));
-    activeLink.classList.add('ativo');
-    document.querySelectorAll('.view-section').forEach(v => {
-      v.id === targetId ? v.classList.remove('hidden') : v.classList.add('hidden');
-    });
-    document.body.classList.toggle('admin-mode', targetId === 'admin-view');
-  }
-
-  function fecharLogin() {
-    if (!modalLogin) return;
-    closeModal(modalLogin);
-  }
-
-  linkLogin?.addEventListener('click', e => {
-    e.preventDefault();
-    const target = linkLogin.getAttribute('data-target');
-    if (target) {
-      trocarView(target, linkLogin);
-    } else {
-      if (!modalLogin) return;
-      openModal(modalLogin, linkLogin);
-    }
-  });
-
-  btnFecharLogin?.addEventListener('click', fecharLogin);
-  modalLogin?.addEventListener('click', e => { if (e.target === modalLogin) fecharLogin(); });
-
-  formLogin?.addEventListener('submit', e => {
-    e.preventDefault();
-    const user = document.getElementById('loginUser')?.value;
-    const pass = document.getElementById('loginPass')?.value;
-
-    if (user === 'admin' && pass === '1234') {
-      fecharLogin();
-      mostrarToast('Acesso concedido. Bem-vindo, Editor!');
-      linkLogin.textContent = '⚙️ Painel Admin';
-      linkLogin.setAttribute('data-target', 'admin-view');
-      linkLogin.style.color = 'var(--terra)';
-      linkLogin.classList.add('nav-link');
-      trocarView('admin-view', linkLogin);
-    } else {
-      mostrarToast('Usuário ou senha incorretos', 'erro');
-    }
-  });
-
-  document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      trocarView(link.getAttribute('data-target'), link);
+    abrirModalNoticia({
+      titulo:    card.getAttribute('data-titulo')    || '',
+      categoria: card.getAttribute('data-categoria') || '',
+      cor:       card.getAttribute('data-cor')       || 'var(--verde)',
+      texto:     card.getAttribute('data-texto')     || '',
+      data:      data ? `${data} · Via ${fonte}` : `Via ${fonte}`,
+      link:      card.getAttribute('data-link')      || '#',
+      fonte,
     });
   });
 
-  // ════════════════════════════════════════════════
-  // 8. NEWSLETTER
-  // ════════════════════════════════════════════════
-
-  const newsForm = document.querySelector('.newsletter-form');
-  newsForm?.addEventListener('submit', e => {
+  // Suporte a teclado nos cards
+  document.body.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.noticia-clicavel');
+    if (!card || e.target.closest('.btn-ler-mais')) return;
     e.preventDefault();
-    const email  = newsForm.querySelector('input[type="email"]').value;
-    const btn    = newsForm.querySelector('button');
-    const orig   = btn.textContent;
+    card.click();
+  });
+
+  // ════════════════════════════════════════════════
+  // 10. NEWSLETTER
+  // ════════════════════════════════════════════════
+  document.getElementById('newsletterForm')?.addEventListener('submit', e => {
+    e.preventDefault();
+    const form  = e.currentTarget;
+    const email = form.querySelector('input[type="email"]').value;
+    const btn   = form.querySelector('button[type="submit"]');
+    const orig  = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'Enviando...';
     setTimeout(() => {
-      alert(`Obrigado! O e-mail ${email} foi cadastrado.`);
-      btn.disabled   = false;
+      mostrarToast(`E-mail ${email} cadastrado com sucesso!`, 'sucesso');
+      btn.disabled = false;
       btn.textContent = orig;
-      newsForm.reset();
+      form.reset();
     }, 1000);
   });
 
   // ════════════════════════════════════════════════
-  // 9. MODAL GERAR NOTÍCIA COM IA (REMOVIDO)
+  // 11. MODAL ADICIONAR NOTÍCIA
   // ════════════════════════════════════════════════
+  const modalAdicionar = document.getElementById('modalAdicionarNoticia');
+  document.getElementById('fecharAdicionarNoticia')?.addEventListener('click', () => closeModal(modalAdicionar));
+  modalAdicionar?.addEventListener('click', e => { if (e.target === modalAdicionar) closeModal(modalAdicionar); });
 
-  // A funcionalidade de IA foi removida.
-  // Os elementos e eventos relacionados a ela não são mais necessários.
-
-  // ════════════════════════════════════════════════
-  // FUNÇÕES DE RENDERIZAÇÃO DE NOTÍCIAS RSS
-  // ════════════════════════════════════════════════
-
-  function getCategoryInfo(newsItem) {
-    // Mapeamento de palavras-chave para categorias
-    const keywordMap = {
-      'Graos': ['soja', 'milho', 'trigo', 'arroz', 'grãos', 'safra'],
-      'Pecuaria': ['pecuária', 'boi', 'gado', 'carne', 'leite', 'frango', 'suíno'],
-      'Tecnologia': ['tecnologia', 'inovação', 'digital', 'drone', 'inteligência artificial', 'ia', 'software', 'aplicativo'],
-      'Clima': ['clima', 'chuva', 'tempo', 'seca', 'fenômeno', 'el niño', 'la niña'],
-      'Mercado': ['mercado', 'preço', 'cotação', 'commodities', 'exportação', 'importação', 'economia'],
-      'Politica': ['política', 'governo', 'subsídio', 'crédito rural', 'plano safra', 'legislação'],
-      'Credito': ['crédito', 'financiamento', 'banco', 'juros'],
-      'Fruticultura': ['fruta', 'fruticultura', 'citrus', 'uva', 'maçã']
-    };
-
-    const titleAndContent = `${newsItem.title || ''} ${newsItem.contentSnippet || ''} ${newsItem.description || ''}`.toLowerCase();
-    let categoryKey = 'Outros'; // Categoria padrão
-
-    // Tenta inferir a categoria por palavras-chave
-    for (const key in keywordMap) {
-      if (keywordMap[key].some(keyword => titleAndContent.includes(keyword))) {
-        categoryKey = key;
-        break;
-      }
-    }
-
-    // Fallback para categoria desconhecida se não encontrar correspondência
-    return {
-      category: LABEL_CAT[categoryKey] || 'Outros',
-      color: COR_CAT[categoryKey] || 'var(--verde)',
-      thumb: THUMB_CAT[categoryKey] || { emoji: '📰', bg: 'linear-gradient(135deg,#EAF3DE,#c0dd97)' }
-    };
-  }
-
-  function renderHeroPrincipal(newsItem) {
-    const container = document.getElementById('heroPrincipalContainer');
-    if (!container || !newsItem) return;
-
-    const { category, color } = getCategoryInfo(newsItem);
-    const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Agora mesmo';
-    const description = newsItem.contentSnippet || newsItem.description || '';
-    const sourceName = newsItem.source || 'Fonte Externa';
-
-    container.innerHTML = `
-      <article class="hero-principal noticia-clicavel"
-               data-titulo="${newsItem.title}"
-               data-categoria="${category}"
-               data-cor="${color}"
-               data-texto="${description}"
-               data-data="${formattedDate}"
-               data-fonte="${sourceName}"
-               data-link="${newsItem.link}">
-        <div class="hero-img-box">
-          <!-- SVG Decorative wheat (mantido, mas pode ser substituído por imagem se disponível no RSS) -->
-          <svg class="hero-deco" viewBox="0 0 200 200" fill="none" aria-hidden="true">
-            <path d="M100 180 Q100 100 100 20" stroke="white" stroke-width="3"/>
-            <path d="M100 140 Q80 120 60 130" stroke="white" stroke-width="2.5"/>
-            <path d="M100 120 Q120 100 140 110" stroke="white" stroke-width="2.5"/>
-            <path d="M100 100 Q78 80 58 90" stroke="white" stroke-width="2.5"/>
-            <path d="M100 80 Q122 60 142 70" stroke="white" stroke-width="2.5"/>
-            <ellipse cx="60" cy="130" rx="14" ry="8" fill="white" transform="rotate(-30 60 130)"/>
-            <ellipse cx="140" cy="110" rx="14" ry="8" fill="white" transform="rotate(30 140 110)"/>
-            <ellipse cx="58" cy="90" rx="14" ry="8" fill="white" transform="rotate(-30 58 90)"/>
-            <ellipse cx="142" cy="70" rx="14" ry="8" fill="white" transform="rotate(30 142 70)"/>
-          </svg>
-          <div class="hero-content-overlay">
-            <span class="hero-tag">${category}</span>
-            <h2 id="hero-title">${newsItem.title}</h2>
-          </div>
-        </div>
-        <div class="hero-principal-body">
-          <p>${description.substring(0, 220)}...</p>
-          <div class="hero-meta">
-            <span class="autor">Fonte: <strong>${sourceName}</strong></span>
-            <span aria-hidden="true">•</span>
-            <time>${formattedDate}</time>
-            <span aria-hidden="true">•</span>
-            <span>Leia mais →</span>
-          </div>
-        </div>
-      </article>
-    `;
-    // Aplica a cor de fundo dinamicamente via JS para o hero-img-box
-    const heroImgBox = container.querySelector('.hero-img-box');
-    if (heroImgBox) {
-      heroImgBox.style.background = `linear-gradient(135deg, ${color}dd, #1a2e05)`;
-    }
-    // Aplica a cor da tag dinamicamente via JS
-    const heroTag = container.querySelector('.hero-tag');
-    if (heroTag) {
-      heroTag.style.background = color;
-    }
-    // Aplica a cor do "Leia mais" dinamicamente via JS
-    const readMore = container.querySelector('.hero-meta span:last-child');
-    if (readMore) {
-      readMore.style.color = color;
-    }
-  }
-
-  function renderHeroSidebarCard(newsItem, container) {
-    if (!container || !newsItem) return;
-
-    const { category, color } = getCategoryInfo(newsItem);
-    const description = newsItem.contentSnippet || newsItem.description || '';
-    const sourceName = newsItem.source || 'Fonte Externa';
-
-    const card = document.createElement('article');
-    card.className = 'hero-card noticia-clicavel';
-    card.setAttribute('data-titulo', newsItem.title);
-    card.setAttribute('data-categoria', category);
-    card.setAttribute('data-cor', color);
-    card.setAttribute('data-texto', description);
-    card.setAttribute('data-data', newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Agora mesmo');
-    card.setAttribute('data-fonte', sourceName);
-    card.setAttribute('data-link', newsItem.link);
-
-    card.innerHTML = `
-      <span class="hero-card-tag" style="color:${color}">${category}</span>
-      <h3>${newsItem.title}</h3>
-    `;
-    container.appendChild(card);
-  }
-
-  function renderNoticiaCard(newsItem, container) {
-    const { category, color, thumb } = getCategoryInfo(newsItem);
-    const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : 'Agora mesmo';
-    const description = newsItem.contentSnippet || newsItem.description || '';
-    const sourceName = newsItem.source || 'Fonte';
-
-    const card = document.createElement('article');
-    card.className = 'noticia-card noticia-clicavel';
-    card.setAttribute('data-post-id', newsItem.link); // Usar link como ID único
-    card.setAttribute('data-titulo', newsItem.title);
-    card.setAttribute('data-categoria', category);
-    card.setAttribute('data-cor', color);
-    card.setAttribute('data-texto', description);
-    card.setAttribute('data-data', formattedDate);
-    card.setAttribute('data-fonte', sourceName);
-    card.setAttribute('data-link', newsItem.link);
-
-    card.innerHTML = `
-      <div class="noticia-thumb" style="background:${thumb.bg}" aria-hidden="true">${thumb.emoji}</div>
-      <div class="noticia-body">
-        <div class="noticia-meta-top">
-          <span class="noticia-cat" style="color:${color}">${category}</span>
-          <span class="noticia-fonte">${sourceName}</span>
-        </div>
-        <h3>${newsItem.title}</h3>
-        <p>${description.substring(0, 110)}...</p>
-        <div class="hero-meta"><time>${formattedDate}</time></div>
-      </div>
-    `;
-    container.appendChild(card);
-  }
-
-  function renderAnaliseCard(newsItem, container) {
-    const { category, color } = getCategoryInfo(newsItem);
-    const description = newsItem.contentSnippet || newsItem.description || '';
-    const sourceName = newsItem.source || 'Fonte Externa';
-
-    const card = document.createElement('article');
-    card.className = 'analise-card noticia-clicavel';
-    card.setAttribute('data-titulo', newsItem.title);
-    card.setAttribute('data-categoria', category);
-    card.setAttribute('data-cor', color);
-    card.setAttribute('data-texto', description);
-    card.setAttribute('data-data', newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Agora mesmo');
-    card.setAttribute('data-fonte', sourceName);
-    card.setAttribute('data-link', newsItem.link);
-
-    card.innerHTML = `
-      <div class="analise-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
-      </div>
-      <div class="analise-body">
-        <span class="noticia-cat" style="color:${color}">${category}</span>
-        <h3>${newsItem.title}</h3>
-        <p>Por ${sourceName} — ${category}</p>
-      </div>
-    `;
-    container.appendChild(card);
-  }
-
-  function renderMaisLidaItem(newsItem, container, index) {
-    const { category, color } = getCategoryInfo(newsItem);
-    const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : 'Agora mesmo';
-    const description = newsItem.contentSnippet || newsItem.description || '';
-    const sourceName = newsItem.source || 'Fonte Externa';
-
-    const item = document.createElement('li');
-    item.className = 'mais-lida-item noticia-clicavel';
-    item.setAttribute('data-titulo', newsItem.title);
-    item.setAttribute('data-categoria', category);
-    item.setAttribute('data-cor', color);
-    item.setAttribute('data-texto', description);
-    item.setAttribute('data-data', newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Agora mesmo');
-    item.setAttribute('data-fonte', sourceName);
-    item.setAttribute('data-link', newsItem.link);
-
-    item.innerHTML = `
-      <span class="mais-lida-num">${String(index + 1).padStart(2, '0')}</span>
-      <div class="mais-lida-content">
-        <div class="mais-lida-titulo">${newsItem.title}</div>
-        <div class="mais-lida-meta">${sourceName} • ${formattedDate}</div>
-      </div>
-    `;
-    container.appendChild(item);
-  }
-
-  function renderRssNewsItem(newsItem, container) {
-    if (!container || !newsItem) return;
-
-    const formattedDate = newsItem.date ? new Date(newsItem.date).toLocaleDateString('pt-BR') : 'Data desconhecida';
-    const sourceName = newsItem.source || 'Fonte Externa';
-
-    const item = document.createElement("div");
-    item.className = "rss-news-item"; // Adiciona uma classe para estilização futura
-
-    item.innerHTML = `
-      <h3><a href="${newsItem.link}" target="_blank" rel="noopener noreferrer">${newsItem.title}</a></h3>
-      <p>${sourceName} • ${formattedDate}</p>
-      <hr/>
-    `;
-    container.appendChild(item);
-  }
-
-  function renderNewsSections(newsData) {
-    const heroPrincipalContainer = document.getElementById('heroPrincipalContainer');
-    const heroSidebarContainer = document.getElementById('heroSidebarContainer');
-    const noticiasGrid = document.getElementById('noticiasGrid');
-    const analiseGridContainer = document.getElementById('analiseGridContainer');
-    const maisLidasList = document.getElementById('maisLidasList');
-    const rssNewsContainer = document.getElementById('rssNewsContainer');
-
-    // Limpa os contêineres antes de renderizar
-    heroPrincipalContainer.innerHTML = '';
-    heroSidebarContainer.innerHTML = '';
-    noticiasGrid.innerHTML = '';
-    analiseGridContainer.innerHTML = '';
-    maisLidasList.innerHTML = '';
-    rssNewsContainer.innerHTML = '';
-
-    if (newsData.length === 0) {
-      noticiasGrid.innerHTML = '<p>Nenhuma notícia encontrada para esta categoria.</p>';
-      rssNewsContainer.innerHTML = '<p>Nenhuma notícia RSS disponível no momento.</p>';
+  document.getElementById('formAdicionarNoticia')?.addEventListener('submit', e => {
+    e.preventDefault();
+    const titulo = document.getElementById('noticiaTitulo')?.value.trim();
+    const cat    = document.getElementById('noticiaCategoria')?.value.trim();
+    const texto  = document.getElementById('noticiaTexto')?.value.trim();
+    if (!titulo || !cat || !texto) {
+      mostrarToast('Preencha todos os campos obrigatórios.', 'erro');
       return;
     }
-
-    let newsIndex = 0;
-    const totalNews = newsData.length;
-
-    // Hero Principal (1ª notícia)
-    if (newsIndex < totalNews) {
-      renderHeroPrincipal(newsData[newsIndex]);
-      newsIndex++;
-    }
-
-    // Hero Sidebar (2ª e 3ª notícias)
-    for (let i = 0; i < 2 && newsIndex < totalNews; i++) {
-      renderHeroSidebarCard(newsData[newsIndex], heroSidebarContainer);
-      newsIndex++;
-    }
-
-    // Últimas Notícias (a partir da próxima notícia disponível, 3 cards)
-    for (let i = 0; i < 3 && newsIndex < totalNews; i++) {
-      renderNoticiaCard(newsData[newsIndex], noticiasGrid);
-      newsIndex++;
-    }
-
-    // Análise de Mercado (2 cards)
-    for (let i = 0; i < 2 && newsIndex < totalNews; i++) {
-      renderAnaliseCard(newsData[newsIndex], analiseGridContainer);
-      newsIndex++;
-    }
-
-    // Em Alta Agora (3 itens)
-    for (let i = 0; i < 3 && newsIndex < totalNews; i++) {
-      renderMaisLidaItem(newsData[newsIndex], maisLidasList, i);
-      newsIndex++;
-    }
-
-    // Notícias RSS (os próximos 5 itens restantes, se houver)
-    // Usamos um novo índice para garantir que não pegamos notícias já usadas nas seções principais
-    const rssWidgetNews = newsData.slice(newsIndex, newsIndex + 5);
-    if (rssWidgetNews.length > 0) {
-      rssWidgetNews.forEach(item => renderRssNewsItem(item, rssNewsContainer));
-    } else {
-      rssNewsContainer.innerHTML = '<p>Nenhuma notícia RSS adicional disponível.</p>';
-    }
-    
-    mostrarToast("Notícias RSS carregadas com sucesso!", "sucesso");
-  }
+    mostrarToast('Notícia adicionada com sucesso!', 'sucesso');
+    closeModal(modalAdicionar);
+    e.target.reset();
+  });
 
   // ════════════════════════════════════════════════
-  // Inicialização do Carregador de Notícias RSS
+  // 12. PLAYER MULTIMÍDIA
   // ════════════════════════════════════════════════
-
-  // Função de inicialização principal
-  async function initNewsLoading() {
-    try {
-      const news = await fetchRssNews(); // Chama a função para buscar os dados
-      if (news && news.length > 0) {
-        allNews = news; // Armazena todas as notícias
-        renderNewsSections(allNews); // Renderiza as seções iniciais
-      } else {
-        mostrarToast("Nenhuma notícia RSS disponível.", "info");
-      }
-    } catch (error) {
-      console.error("Erro na inicialização do carregador RSS:", error);
-      mostrarToast("Falha ao carregar notícias RSS.", "erro");
-    }
-  }
-
-  initNewsLoading(); // Chama a função de inicialização
-
-  // ════════════════════════════════════════════════
-  // 11. PLAYER MULTIMÍDIA
-  // ════════════════════════════════════════════════
-
   const multimidiaMain = document.querySelector('.multimidia-main');
-  const multimidiaItems = document.querySelectorAll('.multimidia-item');
 
-  multimidiaItems.forEach(item => {
-    item.addEventListener('click', () => {
-      const novaImg = item.getAttribute('data-img');
+  document.querySelectorAll('.multimidia-item').forEach(item => {
+    const activate = () => {
+      const novaImg   = item.getAttribute('data-img');
       const novoTitulo = item.getAttribute('data-titulo');
-      const tipo = item.getAttribute('data-tipo');
+      const tipo      = item.getAttribute('data-tipo');
+      const placeholder = multimidiaMain?.querySelector('.multimidia-video-placeholder');
 
-      const placeholder = multimidiaMain.querySelector('.multimidia-video-placeholder');
-      const playerImg = multimidiaMain.querySelector('img');
-      const playerTitle = multimidiaMain.querySelector('h3');
-      const playBtn = multimidiaMain.querySelector('.play-button');
-      const tag = multimidiaMain.querySelector('.multimidia-tag');
-
-      // 1. Inicia o Fade Out
       placeholder?.classList.add('fading');
-
-      // 2. Aguarda a transição (300ms) antes de trocar o conteúdo
       setTimeout(() => {
-        if (playerImg) playerImg.src = novaImg;
-        if (playerTitle) playerTitle.textContent = novoTitulo;
-        if (tag) tag.textContent = tipo === 'video' ? 'Vídeo' : 'Galeria';
-        if (playBtn) playBtn.style.display = tipo === 'video' ? 'flex' : 'none';
-
-        // 3. Inicia o Fade In
+        const img   = multimidiaMain?.querySelector('img');
+        const h3    = multimidiaMain?.querySelector('h3');
+        const play  = multimidiaMain?.querySelector('.play-button');
+        const tag   = multimidiaMain?.querySelector('.multimidia-tag');
+        if (img)  img.src = novaImg;
+        if (h3)   h3.textContent = novoTitulo;
+        if (tag)  tag.textContent = tipo === 'video' ? 'Vídeo' : 'Galeria';
+        if (play) play.style.display = tipo === 'video' ? 'flex' : 'none';
         placeholder?.classList.remove('fading');
       }, 300);
-      
-      multimidiaMain.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      multimidiaMain?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+    item.addEventListener('click', activate);
+    item.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
     });
   });
 
   // ════════════════════════════════════════════════
-  // 10. FUNÇÕES GLOBAIS E AUXILIARES
+  // HELPERS
   // ════════════════════════════════════════════════
+  function getCategoryInfo(newsItem) {
+    const map = {
+      Graos:        ['soja', 'milho', 'trigo', 'arroz', 'grãos', 'safra', 'cafeicultura', 'café'],
+      Pecuaria:     ['pecuária', 'boi', 'gado', 'carne', 'leite', 'frango', 'suíno', 'tainha', 'pesca'],
+      Tecnologia:   ['tecnologia', 'inovação', 'digital', 'drone', 'inteligência artificial', 'ia', 'software', 'biotecnologia', 'sustentabilidade', 'ambiental'],
+      Clima:        ['clima', 'chuva', 'tempo', 'seca', 'fenômeno', 'el niño', 'la niña', 'geada', 'inmet'],
+      Mercado:      ['mercado', 'preço', 'cotação', 'commodities', 'exportação', 'importação', 'economia', 'crédito rural', 'financiamento'],
+      Politica:     ['política', 'governo', 'subsídio', 'plano safra', 'legislação', 'federal', 'estoque', 'liberação'],
+      Credito:      ['crédito', 'banco', 'juros', 'financiamento'],
+      Fruticultura: ['fruta', 'fruticultura', 'citrus', 'uva', 'maçã'],
+    };
 
-  // O listener global de keydown para 'Escape' foi movido para modal-manager.js
+    const hay = `${newsItem.title || ''} ${newsItem.contentSnippet || ''} ${newsItem.description || ''}`.toLowerCase();
+    let key = 'Outros';
+    for (const [k, words] of Object.entries(map)) {
+      if (words.some(w => hay.includes(w))) { key = k; break; }
+    }
+    return {
+      category: LABEL_CAT[key] || 'Outros',
+      color:    COR_CAT[key]   || 'var(--verde)',
+      thumb:    THUMB_CAT[key] || { emoji: '📰', bg: 'linear-gradient(135deg,#EAF3DE,#c0dd97)' },
+    };
+  }
 
-});
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return isNaN(d) ? '' : d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  }
+
+  function setNewsAttrs(el, item, category, color) {
+    el.setAttribute('data-titulo',    item.title  || '');
+    el.setAttribute('data-categoria', category);
+    el.setAttribute('data-cor',       color);
+    el.setAttribute('data-texto',     item.contentSnippet || item.description || '');
+    el.setAttribute('data-data',      formatDate(item.date));
+    el.setAttribute('data-fonte',     item.source || 'Fonte');
+    el.setAttribute('data-link',      item.link   || '#');
+  }
+
+  // ════════════════════════════════════════════════
+  // RENDERIZAÇÃO — HERO (DESTAQUES)
+  // ════════════════════════════════════════════════
+  function renderHero(newsData) {
+    const heroGrid = document.getElementById('heroGrid');
+    if (!heroGrid) return;
+    heroGrid.innerHTML = '';
+    if (!newsData.length) return;
+
+    // Hero principal
+    const main = newsData[0];
+    const { category: cat0, color: col0 } = getCategoryInfo(main);
+    const desc0  = (main.contentSnippet || main.description || '').substring(0, 200);
+    const fonte0 = main.source || 'Fonte Externa';
+
+    const heroPrincipal = document.createElement('article');
+    heroPrincipal.className = 'hero-principal noticia-clicavel';
+    heroPrincipal.setAttribute('tabindex', '0');
+    setNewsAttrs(heroPrincipal, main, cat0, col0);
+
+    heroPrincipal.innerHTML = `
+      <div class="hero-img-box" style="background:linear-gradient(160deg,#0C1A02,${col0}cc)">
+        <div class="hero-img-overlay"></div>
+        <svg class="hero-img-deco" viewBox="0 0 200 200" fill="none" aria-hidden="true">
+          <path d="M100 180 Q100 100 100 20" stroke="white" stroke-width="3"/>
+          <path d="M100 140 Q80 120 60 130" stroke="white" stroke-width="2.5"/>
+          <path d="M100 120 Q120 100 140 110" stroke="white" stroke-width="2.5"/>
+          <path d="M100 100 Q78 80 58 90" stroke="white" stroke-width="2.5"/>
+          <path d="M100 80 Q122 60 142 70" stroke="white" stroke-width="2.5"/>
+          <ellipse cx="60" cy="130" rx="14" ry="8" fill="white" transform="rotate(-30 60 130)"/>
+          <ellipse cx="140" cy="110" rx="14" ry="8" fill="white" transform="rotate(30 140 110)"/>
+          <ellipse cx="58" cy="90" rx="14" ry="8" fill="white" transform="rotate(-30 58 90)"/>
+          <ellipse cx="142" cy="70" rx="14" ry="8" fill="white" transform="rotate(30 142 70)"/>
+        </svg>
+        <div class="hero-content-overlay">
+          <span class="hero-tag" style="background:${col0}">${cat0}</span>
+          <h2 id="hero-title">${main.title}</h2>
+        </div>
+      </div>
+      <div class="hero-principal-body">
+        <p>${desc0}${desc0.length >= 200 ? '…' : ''}</p>
+        <div class="hero-meta">
+          <div class="hero-fonte-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>
+            </svg>
+            Fonte: <strong>${fonte0}</strong>
+          </div>
+          <span aria-hidden="true">·</span>
+          <time>${formatDate(main.date)}</time>
+        </div>
+      </div>
+    `;
+    heroGrid.appendChild(heroPrincipal);
+
+    // Cards laterais
+    for (let i = 1; i <= 2 && i < newsData.length; i++) {
+      const item = newsData[i];
+      const { category, color } = getCategoryInfo(item);
+      const fonte = item.source || 'Fonte';
+
+      const card = document.createElement('article');
+      card.className = 'hero-card noticia-clicavel';
+      card.setAttribute('tabindex', '0');
+      setNewsAttrs(card, item, category, color);
+
+      card.innerHTML = `
+        <div>
+          <span class="hero-card-tag" style="color:${color}">${category}</span>
+          <h3>${item.title}</h3>
+        </div>
+        <div class="hero-card-meta">
+          <span class="hero-card-fonte-pill">${fonte}</span>
+          <span aria-hidden="true">·</span>
+          <time>${formatDate(item.date)}</time>
+        </div>
+      `;
+      heroGrid.appendChild(card);
+    }
+  }
+
+  // ════════════════════════════════════════════════
+  // RENDERIZAÇÃO — GRID DE NOTÍCIAS
+  // ════════════════════════════════════════════════
+  function renderNoticiasGrid(newsData) {
+    const grid = document.getElementById('noticiasGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const badge = document.getElementById('noticias-count');
+    if (badge) badge.textContent = newsData.length > 0 ? `${newsData.length} notícias` : '';
+
+    if (!newsData.length) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <h3>Nenhuma notícia encontrada</h3>
+          <p>Tente outro filtro ou palavra-chave.</p>
+          <button class="btn-reset" id="btnResetFiltros">Limpar filtros</button>
+        </div>`;
+      document.getElementById('btnResetFiltros')?.addEventListener('click', resetFiltros);
+      return;
+    }
+
+    newsData.forEach(item => {
+      const { category, color, thumb } = getCategoryInfo(item);
+      const fonte = item.source || 'Fonte';
+      const desc  = (item.contentSnippet || item.description || '').substring(0, 120);
+      const link  = item.link || '#';
+
+      const card = document.createElement('article');
+      card.className = 'noticia-card noticia-clicavel';
+      card.setAttribute('tabindex', '0');
+      setNewsAttrs(card, item, category, color);
+
+      card.innerHTML = `
+        <div class="noticia-thumb" style="background:${thumb.bg}" aria-hidden="true">
+          ${thumb.emoji}
+          <div class="fonte-original-flag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>
+            </svg>
+            Fonte original
+          </div>
+        </div>
+        <div class="noticia-body">
+          <div class="noticia-meta-top">
+            <span class="noticia-cat" style="color:${color}">${category}</span>
+          </div>
+          <h3>${item.title}</h3>
+          <p class="noticia-excerpt">${desc}${desc.length >= 120 ? '…' : ''}</p>
+        </div>
+        <div class="card-footer">
+          <span class="card-fonte-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>
+            </svg>
+            ${fonte}
+          </span>
+          <time class="card-date">${formatDate(item.date)}</time>
+          <a href="${link}"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="btn-ler-mais"
+             aria-label="Ler matéria completa em ${fonte}: ${item.title}">
+            Ler matéria
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </a>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // ════════════════════════════════════════════════
+  // RENDERIZAÇÃO — ANÁLISE DE MERCADO
+  // ════════════════════════════════════════════════
+  function renderAnalise(newsData) {
+    const container = document.getElementById('analiseGridContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    newsData.slice(0, 4).forEach(item => {
+      const { category, color } = getCategoryInfo(item);
+      const fonte = item.source || 'Fonte';
+
+      const card = document.createElement('article');
+      card.className = 'analise-card noticia-clicavel';
+      card.setAttribute('tabindex', '0');
+      setNewsAttrs(card, item, category, color);
+
+      card.innerHTML = `
+        <div class="analise-icon" style="background:${color}1a;color:${color}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/>
+          </svg>
+        </div>
+        <div class="analise-body">
+          <span class="noticia-cat" style="color:${color}">${category}</span>
+          <h3>${item.title}</h3>
+          <p>Por ${fonte} · ${formatDate(item.date)}</p>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  // ════════════════════════════════════════════════
+  // RENDERIZAÇÃO — EM ALTA AGORA
+  // ════════════════════════════════════════════════
+  function renderEmAlta(newsData) {
+    const container = document.getElementById('listaNoticias');
+    if (!container) return;
+    container.innerHTML = '';
+
+    newsData.slice(0, 5).forEach((item, i) => {
+      const { category, color } = getCategoryInfo(item);
+      const fonte = item.source || 'Fonte';
+
+      const el = document.createElement('div');
+      el.className = 'mais-lida-item noticia-clicavel';
+      el.setAttribute('tabindex', '0');
+      setNewsAttrs(el, item, category, color);
+
+      el.innerHTML = `
+        <span class="mais-lida-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+        <div class="mais-lida-content">
+          <div class="mais-lida-titulo">${item.title}</div>
+          <div class="mais-lida-meta">
+            <span class="mais-lida-fonte-pill">${fonte}</span>
+            <span aria-hidden="true">·</span>
+            <time>${formatDate(item.date)}</time>
+          </div>
+        </div>
+        <button class="mais-lida-btn" aria-label="Ler: ${item.title}">
+          Ler
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      `;
+      container.appendChild(el);
+    });
+  }
+
+  // ════════════════════════════════════════════════
+  // RENDERIZAÇÃO — MAIS LIDAS (SIDEBAR WIDGET)
+  // ════════════════════════════════════════════════
+  function renderMaisLidas(newsData) {
+    const list = document.getElementById('maisLidasList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    newsData.slice(0, 5).forEach((item, i) => {
+      const { category, color } = getCategoryInfo(item);
+      const fonte = item.source || 'Fonte';
+
+      const li = document.createElement('li');
+      li.className = 'mais-lida-widget-item noticia-clicavel';
+      li.setAttribute('tabindex', '0');
+      setNewsAttrs(li, item, category, color);
+
+      li.innerHTML = `
+        <span class="mais-lida-widget-num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+        <div>
+          <div class="mais-lida-widget-titulo">${item.title}</div>
+          <div class="mais-lida-widget-meta">${fonte} · ${formatDate(item.date)}</div>
+        </div>
+      `;
+      list.appendChild(li);
+    });
+  }
+
+  // ════════════════════════════════════════════════
+  // RENDERIZAÇÃO — WIDGET RSS (SIDEBAR)
+  // ════════════════════════════════════════════════
+  function renderRssWidget(newsData) {
+    const container = document.getElementById('rssNewsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!newsData.length) {
+      container.innerHTML = '<p style="color:var(--texto-3);font-size:13px;">Nenhuma notícia RSS adicional.</p>';
+      return;
+    }
+
+    newsData.slice(0, 6).forEach(item => {
+      const fonte = item.source || 'Fonte';
+      const div = document.createElement('div');
+      div.className = 'rss-news-item';
+      div.innerHTML = `
+        <h3>
+          <a href="${item.link || '#'}" target="_blank" rel="noopener noreferrer">${item.title}</a>
+        </h3>
+        <p>${fonte} · ${formatDate(item.date)}</p>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // ════════════════════════════════════════════════
+  // RENDERIZAÇÃO COMPLETA
+  // ════════════════════════════════════════════════
+  function renderAllSections(newsData) {
+    renderHero(newsData.slice(0, 3));
+    renderNoticiasGrid(newsData.slice(3, 9));
+    renderAnalise(newsData.slice(9, 13));
+    renderEmAlta(newsData.slice(13, 18));
+    renderMaisLidas(newsData.slice(0, 5));
+    renderRssWidget(newsData.slice(18, 24));
+  }
+
+  // ════════════════════════════════════════════════
+  // RESET FILTROS
+  // ════════════════════════════════════════════════
+  function resetFiltros() {
+    state.currentCategory = 'Tudo';
+    state.currentSearch   = '';
+    document.querySelectorAll('.filter-tab').forEach(t => {
+      const isAll = t.dataset.cat === 'Tudo';
+      t.classList.toggle('ativo', isAll);
+      t.setAttribute('aria-selected', String(isAll));
+    });
+    const inline = document.getElementById('busca-inline');
+    const hdr    = document.getElementById('header-search-input');
+    if (inline) inline.value = '';
+    if (hdr)    hdr.value    = '';
+    applyFiltersAndRender();
+  }
+
+  // ════════════════════════════════════════════════
+  // INIT
+  // ════════════════════════════════════════════════
+  async function init() {
+    try {
+      const news = await fetchRssNews();
+      if (news && news.length > 0) {
+        state.allNews = news;
+        applyFiltersAndRender();
+        mostrarToast(`${news.length} notícias carregadas`, 'sucesso');
+      } else {
+        ['heroGrid', 'noticiasGrid', 'analiseGridContainer', 'listaNoticias', 'maisLidasList'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.innerHTML = '';
+        });
+        document.getElementById('rssNewsContainer').innerHTML =
+          '<p style="color:var(--texto-3);font-size:13px;">Nenhuma notícia RSS disponível.</p>';
+        document.getElementById('noticiasGrid').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>
+              </svg>
+            </div>
+            <h3>Nenhuma notícia disponível no momento</h3>
+            <p>O feed RSS pode estar temporariamente indisponível. Tente novamente em instantes.</p>
+          </div>`;
+        mostrarToast('Nenhuma notícia RSS disponível.', 'info');
+      }
+    } catch (err) {
+      console.error('Erro ao inicializar portal:', err);
+      mostrarToast('Falha ao carregar notícias. Verifique a conexão com o servidor.', 'erro');
+    }
+  }
+
+  init();
+
+}); // fim DOMContentLoaded
