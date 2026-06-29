@@ -25,7 +25,7 @@ export function mostrarToast(msg, tipo = 'sucesso') {
     document.body.appendChild(toast);
   }
   toast.textContent    = msg;
-  toast.style.background = tipo === 'erro' ? '#a32d2d' : 'var(--verde)';
+  toast.style.background = tipo === 'erro' ? '#a32d2d' : tipo === 'info' ? '#185FA5' : 'var(--verde)';
   toast.style.transform  = 'translateY(0)';
   toast.style.opacity    = '1';
   clearTimeout(toast._timer);

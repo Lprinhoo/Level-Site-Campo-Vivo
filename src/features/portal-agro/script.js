@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════
   // 1. DATA NA TOPBAR
   // ════════════════════════════════════════════════
-  const topbarTime = document.querySelector('.topbar time');
+  const topbarTime = document.getElementById('topbar-data');
   if (topbarTime) {
     const d = new Date().toLocaleDateString('pt-BR', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -375,6 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
     el.setAttribute('data-data',      formatDate(item.date));
     el.setAttribute('data-fonte',     item.source || 'Fonte');
     el.setAttribute('data-link',      item.link   || '#');
+    el.setAttribute('data-region',    item.region || '');
   }
 
   // ════════════════════════════════════════════════
@@ -668,12 +669,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // RENDERIZAÇÃO COMPLETA
   // ════════════════════════════════════════════════
   function renderAllSections(newsData) {
+    // Seções principais recebem as notícias filtradas/ordenadas
     renderHero(newsData.slice(0, 3));
     renderNoticiasGrid(newsData.slice(3, 9));
     renderAnalise(newsData.slice(9, 13));
     renderEmAlta(newsData.slice(13, 18));
-    renderMaisLidas(newsData.slice(0, 5));
-    renderRssWidget(newsData.slice(18, 24));
+    // Widgets da sidebar usam sempre o topo do acervo completo (sem filtro de categoria)
+    renderMaisLidas(state.allNews.slice(0, 5));
+    renderRssWidget(state.allNews.slice(18, 24));
   }
 
   // ════════════════════════════════════════════════
@@ -709,9 +712,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const el = document.getElementById(id);
           if (el) el.innerHTML = '';
         });
-        document.getElementById('rssNewsContainer').innerHTML =
+        const _rss = document.getElementById('rssNewsContainer');
+        if (_rss) _rss.innerHTML =
           '<p style="color:var(--texto-3);font-size:13px;">Nenhuma notícia RSS disponível.</p>';
-        document.getElementById('noticiasGrid').innerHTML = `
+        const _grid = document.getElementById('noticiasGrid');
+        if (_grid) _grid.innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
