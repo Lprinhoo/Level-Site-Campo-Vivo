@@ -96,27 +96,56 @@ document.addEventListener('DOMContentLoaded', () => {
   btnFecharBusca?.addEventListener('click', fecharBusca);
   buscaOverlay?.addEventListener('click', e => { if (e.target === buscaOverlay) fecharBusca(); });
 
-  document.querySelectorAll('.busca-tag').forEach(tag => {
-    tag.addEventListener('click', () => {
-      if (buscaInput) { buscaInput.value = tag.textContent; buscaInput.focus(); }
-    });
-  });
-
   // ════════════════════════════════════════════════
   // 4. FILTROS POR CATEGORIA
+  //    Abas de filtro e navegação de categorias são geradas
+  //    a partir de LABEL_CAT (única fonte de verdade), evitando
+  //    listas duplicadas e desalinhadas entre nav / filtros / footer.
   // ════════════════════════════════════════════════
-  document.querySelectorAll('.filter-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.filter-tab').forEach(t => {
-        t.classList.remove('ativo');
-        t.setAttribute('aria-selected', 'false');
-      });
-      tab.classList.add('ativo');
-      tab.setAttribute('aria-selected', 'true');
-      state.currentCategory = tab.dataset.cat || 'Tudo';
-      applyFiltersAndRender();
+  const categoriasTabsEl = document.getElementById('categoriasTabs');
+  const navCategoriasEl  = document.getElementById('navCategorias');
+  const categoriasDisponiveis = ['Tudo', ...new Set(Object.values(LABEL_CAT))];
+
+  function selecionarCategoria(categoria) {
+    state.currentCategory = categoria;
+
+    document.querySelectorAll('.filter-tab').forEach(t => {
+      const ativa = t.dataset.cat === categoria;
+      t.classList.toggle('ativo', ativa);
+      t.setAttribute('aria-selected', String(ativa));
     });
-  });
+    document.querySelectorAll('.nav-categories a').forEach(a => {
+      const ativa = a.dataset.cat === categoria;
+      a.classList.toggle('ativo', ativa);
+      if (ativa) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+
+    applyFiltersAndRender();
+  }
+
+  if (categoriasTabsEl) {
+    categoriasTabsEl.innerHTML = categoriasDisponiveis.map(cat => `
+      <button class="filter-tab${cat === 'Tudo' ? ' ativo' : ''}" role="tab"
+              aria-selected="${cat === 'Tudo'}" data-cat="${cat}">${cat}</button>
+    `).join('');
+    categoriasTabsEl.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => selecionarCategoria(tab.dataset.cat || 'Tudo'));
+    });
+  }
+
+  if (navCategoriasEl) {
+    navCategoriasEl.innerHTML = categoriasDisponiveis.map(cat => `
+      <a href="#noticias-title" class="${cat === 'Tudo' ? 'ativo' : ''}" data-cat="${cat}"
+         ${cat === 'Tudo' ? 'aria-current="page"' : ''}>${cat === 'Tudo' ? 'Início' : cat}</a>
+    `).join('');
+    navCategoriasEl.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        selecionarCategoria(a.dataset.cat || 'Tudo');
+        document.getElementById('noticias-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
 
   // ════════════════════════════════════════════════
   // 5. BUSCA POR PALAVRA-CHAVE
@@ -278,60 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.textContent = orig;
       form.reset();
     }, 1000);
-  });
-
-  // ════════════════════════════════════════════════
-  // 11. MODAL ADICIONAR NOTÍCIA
-  // ════════════════════════════════════════════════
-  const modalAdicionar = document.getElementById('modalAdicionarNoticia');
-  document.getElementById('fecharAdicionarNoticia')?.addEventListener('click', () => closeModal(modalAdicionar));
-  modalAdicionar?.addEventListener('click', e => { if (e.target === modalAdicionar) closeModal(modalAdicionar); });
-
-  document.getElementById('formAdicionarNoticia')?.addEventListener('submit', e => {
-    e.preventDefault();
-    const titulo = document.getElementById('noticiaTitulo')?.value.trim();
-    const cat    = document.getElementById('noticiaCategoria')?.value.trim();
-    const texto  = document.getElementById('noticiaTexto')?.value.trim();
-    if (!titulo || !cat || !texto) {
-      mostrarToast('Preencha todos os campos obrigatórios.', 'erro');
-      return;
-    }
-    mostrarToast('Notícia adicionada com sucesso!', 'sucesso');
-    closeModal(modalAdicionar);
-    e.target.reset();
-  });
-
-  // ════════════════════════════════════════════════
-  // 12. PLAYER MULTIMÍDIA
-  // ════════════════════════════════════════════════
-  const multimidiaMain = document.querySelector('.multimidia-main');
-
-  document.querySelectorAll('.multimidia-item').forEach(item => {
-    const activate = () => {
-      const novaImg   = item.getAttribute('data-img');
-      const novoTitulo = item.getAttribute('data-titulo');
-      const tipo      = item.getAttribute('data-tipo');
-      const placeholder = multimidiaMain?.querySelector('.multimidia-video-placeholder');
-
-      placeholder?.classList.add('fading');
-      setTimeout(() => {
-        const img   = multimidiaMain?.querySelector('img');
-        const h3    = multimidiaMain?.querySelector('h3');
-        const play  = multimidiaMain?.querySelector('.play-button');
-        const tag   = multimidiaMain?.querySelector('.multimidia-tag');
-        if (img)  img.src = novaImg;
-        if (h3)   h3.textContent = novoTitulo;
-        if (tag)  tag.textContent = tipo === 'video' ? 'Vídeo' : 'Galeria';
-        if (play) play.style.display = tipo === 'video' ? 'flex' : 'none';
-        placeholder?.classList.remove('fading');
-      }, 300);
-
-      multimidiaMain?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    };
-    item.addEventListener('click', activate);
-    item.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
-    });
   });
 
   // ════════════════════════════════════════════════
@@ -683,18 +658,62 @@ document.addEventListener('DOMContentLoaded', () => {
   // RESET FILTROS
   // ════════════════════════════════════════════════
   function resetFiltros() {
-    state.currentCategory = 'Tudo';
-    state.currentSearch   = '';
-    document.querySelectorAll('.filter-tab').forEach(t => {
-      const isAll = t.dataset.cat === 'Tudo';
-      t.classList.toggle('ativo', isAll);
-      t.setAttribute('aria-selected', String(isAll));
-    });
+    state.currentSearch = '';
     const inline = document.getElementById('busca-inline');
     const hdr    = document.getElementById('header-search-input');
     if (inline) inline.value = '';
     if (hdr)    hdr.value    = '';
-    applyFiltersAndRender();
+    selecionarCategoria('Tudo');
+  }
+
+  // ════════════════════════════════════════════════
+  // ESTADOS — VAZIO / ERRO
+  // ════════════════════════════════════════════════
+  const conteudoIds = ['heroGrid', 'noticiasGrid', 'analiseGridContainer', 'listaNoticias', 'maisLidasList'];
+
+  function limparSecoesDeConteudo() {
+    conteudoIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '';
+    });
+  }
+
+  function renderEstadoVazio() {
+    limparSecoesDeConteudo();
+    const rss = document.getElementById('rssNewsContainer');
+    if (rss) rss.innerHTML = '<p style="color:var(--texto-3);font-size:13px;">Nenhuma notícia disponível no momento.</p>';
+
+    const grid = document.getElementById('noticiasGrid');
+    if (grid) grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>
+          </svg>
+        </div>
+        <h3>Nenhuma notícia disponível no momento</h3>
+        <p>O feed de notícias pode estar temporariamente indisponível. Tente novamente em instantes.</p>
+      </div>`;
+  }
+
+  function renderEstadoErro() {
+    limparSecoesDeConteudo();
+    const rss = document.getElementById('rssNewsContainer');
+    if (rss) rss.innerHTML = '<p style="color:var(--texto-3);font-size:13px;">Não foi possível carregar as notícias.</p>';
+
+    const grid = document.getElementById('noticiasGrid');
+    if (grid) grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon empty-state-icon-erro">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <h3>Não foi possível carregar as notícias</h3>
+        <p>Verifique sua conexão ou tente novamente em instantes.</p>
+        <button class="btn-reset" id="btnTentarNovamente">Tentar novamente</button>
+      </div>`;
+    document.getElementById('btnTentarNovamente')?.addEventListener('click', init);
   }
 
   // ════════════════════════════════════════════════
@@ -708,28 +727,12 @@ document.addEventListener('DOMContentLoaded', () => {
         applyFiltersAndRender();
         mostrarToast(`${news.length} notícias carregadas`, 'sucesso');
       } else {
-        ['heroGrid', 'noticiasGrid', 'analiseGridContainer', 'listaNoticias', 'maisLidasList'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.innerHTML = '';
-        });
-        const _rss = document.getElementById('rssNewsContainer');
-        if (_rss) _rss.innerHTML =
-          '<p style="color:var(--texto-3);font-size:13px;">Nenhuma notícia RSS disponível.</p>';
-        const _grid = document.getElementById('noticiasGrid');
-        if (_grid) _grid.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/>
-              </svg>
-            </div>
-            <h3>Nenhuma notícia disponível no momento</h3>
-            <p>O feed RSS pode estar temporariamente indisponível. Tente novamente em instantes.</p>
-          </div>`;
-        mostrarToast('Nenhuma notícia RSS disponível.', 'info');
+        renderEstadoVazio();
+        mostrarToast('Nenhuma notícia disponível.', 'info');
       }
     } catch (err) {
       console.error('Erro ao inicializar portal:', err);
+      renderEstadoErro();
       mostrarToast('Falha ao carregar notícias. Verifique a conexão com o servidor.', 'erro');
     }
   }

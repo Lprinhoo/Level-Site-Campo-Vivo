@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="CampoVivo — Portal de notícias e inteligência do agronegócio brasileiro. Últimas notícias, cotações e análise de mercado.">
+  <meta name="description" content="CampoVivo — Portal de notícias e inteligência do agronegócio brasileiro. Últimas notícias e análise de mercado.">
   <title>CampoVivo — Portal Agronegócio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,10 +28,6 @@
       <span>Cobrindo todo o Brasil Agro</span>
       <span class="topbar-sep" aria-hidden="true">·</span>
       <time id="topbar-data" datetime=""></time>
-    </div>
-    <div class="topbar-right">
-      <span>Safra 2025/26 em andamento</span>
-      <span class="topbar-badge">AO VIVO</span>
     </div>
   </div>
 </div>
@@ -87,23 +83,9 @@
      ══════════════════════════════════════ -->
 <div class="nav-bar">
   <div class="container nav-inner">
-    <nav class="nav-categories" aria-label="Categorias de notícias">
-      <a href="#" class="ativo" aria-current="page">Início</a>
-      <a href="#">Grãos</a>
-      <a href="#">Pecuária</a>
-      <a href="#">Tecnologia</a>
-      <a href="#">Clima</a>
-      <a href="#">Mercados</a>
+    <nav class="nav-categories" id="navCategorias" aria-label="Categorias de notícias">
+      <!-- Gerado dinamicamente via JS a partir de category-data.js -->
     </nav>
-    <div class="nav-divider" aria-hidden="true"></div>
-    <div class="nav-filters" aria-label="Filtros de ordenação">
-      <button class="nav-sort-btn ativo" id="sortRecente" aria-pressed="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/>
-        </svg>
-        Mais Recentes
-      </button>
-    </div>
   </div>
 </div>
 
@@ -156,13 +138,7 @@
         <span class="filters-label" aria-hidden="true">Filtrar:</span>
         <div class="filters-divider" aria-hidden="true"></div>
         <div class="filters-tabs" role="tablist" aria-label="Filtrar por categoria" id="categoriasTabs">
-          <button class="filter-tab ativo" role="tab" aria-selected="true" data-cat="Tudo">Tudo</button>
-          <button class="filter-tab" role="tab" aria-selected="false" data-cat="Grãos">Grãos</button>
-          <button class="filter-tab" role="tab" aria-selected="false" data-cat="Pecuária">Pecuária</button>
-          <button class="filter-tab" role="tab" aria-selected="false" data-cat="Tecnologia">Tecnologia</button>
-          <button class="filter-tab" role="tab" aria-selected="false" data-cat="Clima">Clima</button>
-          <button class="filter-tab" role="tab" aria-selected="false" data-cat="Mercado">Mercado</button>
-          <button class="filter-tab" role="tab" aria-selected="false" data-cat="Política Agrícola">Política</button>
+          <!-- Gerado dinamicamente via JS a partir de category-data.js -->
         </div>
         <div class="filters-search-inline">
           <div class="search-inline-wrapper">
@@ -204,82 +180,12 @@
       </div>
     </section>
 
-    <!-- ── SEÇÃO MULTIMÍDIA ── -->
-    <section class="secao multimidia" aria-labelledby="multimidia-title">
-      <div class="section-header">
-        <h2 class="section-title" id="multimidia-title">TV CampoVivo &amp; Galeria</h2>
-        <a href="#" class="ver-mais">
-          Acessar canal
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </a>
-      </div>
-      <div class="multimidia-container">
-        <div class="multimidia-main">
-          <div class="multimidia-video-placeholder">
-            <img src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=1200&q=80" alt="Capa do vídeo: biotecnologia no Cerrado">
-            <div class="multimidia-main-info">
-              <span class="multimidia-tag">Especial</span>
-              <h3>Como a biotecnologia está dobrando a produtividade no Cerrado</h3>
-            </div>
-            <button class="play-button" aria-label="Reproduzir vídeo">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <polygon points="5 3 19 12 5 21 5 3"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div class="multimidia-list">
-          <div class="multimidia-item"
-               data-img="https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=1200&q=80"
-               data-titulo="Manejo de pragas: as novas soluções biológicas"
-               data-tipo="video" tabindex="0" role="button"
-               aria-label="Reproduzir: Manejo de pragas - as novas soluções biológicas">
-            <div class="multimidia-thumb">
-              <img src="https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=400&q=80" alt="Manejo de pragas">
-              <span class="video-duration">04:15</span>
-            </div>
-            <div class="multimidia-info">
-              <h4>Manejo de pragas: as novas soluções biológicas</h4>
-            </div>
-          </div>
-          <div class="multimidia-item"
-               data-img="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1200&q=80"
-               data-titulo="Cotação do boi gordo: o que esperar da entressafra?"
-               data-tipo="video" tabindex="0" role="button"
-               aria-label="Reproduzir: Cotação do boi gordo">
-            <div class="multimidia-thumb">
-              <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=400&q=80" alt="Boi gordo no campo">
-              <span class="video-duration">03:20</span>
-            </div>
-            <div class="multimidia-info">
-              <h4>Cotação do boi gordo: o que esperar da entressafra?</h4>
-            </div>
-          </div>
-          <div class="multimidia-item"
-               data-img="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80"
-               data-titulo="Galeria: A beleza das colheitas de café em Minas"
-               data-tipo="galeria" tabindex="0" role="button"
-               aria-label="Ver galeria: Colheitas de café em Minas">
-            <div class="multimidia-thumb">
-              <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80" alt="Colheita de café">
-              <span class="photo-count">12 fotos</span>
-            </div>
-            <div class="multimidia-info">
-              <h4>Galeria: A beleza das colheitas de café em Minas</h4>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ── BANNER CTA ── -->
     <div class="banner-agro secao-sm">
       <div class="banner-inner">
         <div class="banner-texto">
           <h2>Inteligência de mercado que você não encontra em outro lugar</h2>
-          <p>Análises exclusivas, relatórios diários e cotações com 15 minutos de antecedência. Teste grátis por 7 dias.</p>
+          <p>Análises exclusivas e relatórios diários direto no seu e-mail. Teste grátis.</p>
         </div>
         <button class="btn-banner">
           Começar agora
@@ -327,72 +233,6 @@
       <!-- SIDEBAR -->
       <aside class="sidebar" aria-label="Widgets de informações">
 
-        <!-- WIDGET CLIMA -->
-        <div class="widget" role="region" aria-label="Clima no campo">
-          <div class="widget-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 0 1 0 9z"/>
-            </svg>
-            Clima no Campo
-          </div>
-          <div class="widget-body">
-            <div class="clima-local">
-              <div class="clima-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="4" fill="#F5A623" stroke="#F5A623"/>
-                  <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#F5A623" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M6 15a6 6 0 0 1 12 0H6z" fill="#9BC4E2" opacity=".7"/>
-                </svg>
-              </div>
-              <div>
-                <div class="clima-temp">28°C</div>
-                <div class="clima-cidade">Sorriso, MT</div>
-              </div>
-            </div>
-            <div class="clima-detalhes">
-              <div class="clima-detalhe">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a10 10 0 0 0 0 20v-9"/><path d="M12 2c-4 0-8 4-8 8"/></svg>
-                Umidade: 65%
-              </div>
-              <div class="clima-detalhe">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><polyline points="8 16 12 12 16 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
-                Chuva: 0 mm
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- WIDGET COTAÇÕES -->
-        <div class="widget" role="region" aria-label="Cotações do mercado hoje">
-          <div class="widget-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
-            </svg>
-            Mercado Hoje
-          </div>
-          <div class="widget-body">
-            <table class="cot-table" aria-label="Tabela de cotações agropecuárias">
-              <thead class="sr-only">
-                <tr><th scope="col">Produto</th><th scope="col">Preço</th><th scope="col">Variação</th></tr>
-              </thead>
-              <tbody>
-                <tr><td class="produto">Soja (sc 60kg)</td><td class="preco">R$ 138,50</td><td class="variacao alta" aria-label="Alta de 0,8%">▲ 0,8%</td></tr>
-                <tr><td class="produto">Milho (sc 60kg)</td><td class="preco">R$ 62,30</td><td class="variacao baixa" aria-label="Baixa de 0,3%">▼ 0,3%</td></tr>
-                <tr><td class="produto">Boi Gordo (@)</td><td class="preco">R$ 314,00</td><td class="variacao alta" aria-label="Alta de 1,2%">▲ 1,2%</td></tr>
-                <tr><td class="produto">Frango (@)</td><td class="preco">R$ 7,80</td><td class="variacao alta" aria-label="Alta de 0,1%">▲ 0,1%</td></tr>
-                <tr><td class="produto">Algodão (@ pluma)</td><td class="preco">R$ 97,10</td><td class="variacao alta" aria-label="Alta de 0,5%">▲ 0,5%</td></tr>
-                <tr><td class="produto">Café Arábica (sc)</td><td class="preco">R$ 1.420,00</td><td class="variacao baixa" aria-label="Baixa de 0,6%">▼ 0,6%</td></tr>
-              </tbody>
-            </table>
-            <a href="#" class="ver-mais" style="margin-top:var(--sp-4);justify-content:center;font-size:12px;">
-              Ver cotações completas
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="13" height="13" aria-hidden="true">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-
         <!-- WIDGET MAIS LIDAS -->
         <div class="widget" role="region" aria-label="Notícias mais lidas">
           <div class="widget-header">
@@ -435,7 +275,7 @@
     <div class="newsletter-box">
       <div class="newsletter-content">
         <h3 id="newsletter-title">Receba o Radar CampoVivo</h3>
-        <p>As principais notícias do agronegócio e as cotações do dia direto no seu e-mail, todas as manhãs.</p>
+        <p>As principais notícias do agronegócio direto no seu e-mail, todas as manhãs.</p>
         <div class="newsletter-social">
           <span class="social-label">Siga-nos:</span>
           <div class="social-icons">
@@ -483,8 +323,6 @@
       </div>
       <div class="footer-col">
         <h4>Serviços</h4>
-        <a href="#">Cotações</a>
-        <a href="#">Previsão do Tempo</a>
         <a href="#">Crédito Rural</a>
         <a href="#">Anúncios</a>
       </div>
@@ -533,18 +371,6 @@
              placeholder="Pesquisar notícias..." autocomplete="off">
       <button class="btn-submit" style="flex-shrink:0;width:auto;padding:0 var(--sp-6);">Buscar</button>
     </div>
-    <div class="busca-sugestoes">
-      <p>Temas populares:</p>
-      <div class="busca-tags">
-        <button class="busca-tag">Soja Mato Grosso</button>
-        <button class="busca-tag">Preço do boi gordo</button>
-        <button class="busca-tag">Safra milho</button>
-        <button class="busca-tag">Crédito rural</button>
-        <button class="busca-tag">Drone agrícola</button>
-        <button class="busca-tag">El Niño 2025</button>
-        <button class="busca-tag">Plano Safra</button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -591,41 +417,6 @@
         </svg>
         Voltar
       </button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL ADICIONAR NOTÍCIA (mantido para compatibilidade) -->
-<div class="modal-adicionar-noticia" id="modalAdicionarNoticia" role="dialog" aria-modal="true" aria-labelledby="modalAdicionarTitulo">
-  <div class="modal-content">
-    <button class="btn-fechar-modal" id="fecharAdicionarNoticia" aria-label="Fechar formulário">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-    <div class="modal-header">
-      <h2 id="modalAdicionarTitulo">Adicionar Nova Notícia</h2>
-    </div>
-    <div class="modal-body">
-      <form id="formAdicionarNoticia" novalidate>
-        <div class="form-group">
-          <label for="noticiaTitulo">Título</label>
-          <input type="text" id="noticiaTitulo" required autocomplete="off" placeholder="Título da notícia">
-        </div>
-        <div class="form-group">
-          <label for="noticiaCategoria">Categoria</label>
-          <input type="text" id="noticiaCategoria" required autocomplete="off" placeholder="ex: Grãos, Pecuária...">
-        </div>
-        <div class="form-group">
-          <label for="noticiaCor">Cor da Categoria</label>
-          <input type="color" id="noticiaCor" value="#2D6A1F">
-        </div>
-        <div class="form-group">
-          <label for="noticiaTexto">Conteúdo da Notícia</label>
-          <textarea id="noticiaTexto" rows="8" required placeholder="Escreva o conteúdo completo aqui..."></textarea>
-        </div>
-        <button type="submit" class="btn-submit">Adicionar Notícia</button>
-      </form>
     </div>
   </div>
 </div>
